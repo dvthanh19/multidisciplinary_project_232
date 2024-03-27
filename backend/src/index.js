@@ -1,0 +1,10 @@
+const express = require('express')
+const app = express()
+const port = 3000
+
+app.get('/', (req, res) => {
+    return res.send('INDEX PAGE');
+})
+
+
+app.listen(port, () => console.log('Listening on http://localhost:' + port))
