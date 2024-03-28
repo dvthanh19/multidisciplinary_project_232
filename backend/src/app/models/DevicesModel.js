@@ -21,7 +21,6 @@ const Devices = db.define(
             }
         },
         room_id: {
-            type: DataTypes.STRING,
             type: DataTypes.ENUM,
             values: ['B1-201', 'B1-202', 'B1-203'],
             allowNull: false,
