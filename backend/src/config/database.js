@@ -1,8 +1,22 @@
-import { Sequelize } from "sequelize";
+import sequelize, { Sequelize } from "sequelize";
+const dbConfig = require("./dbCongig.js")
 
-const db = new Sequelize('auth_db', 'root', '', {
-    host: "localhost",
-    dialect: "mysql"
+const db = new Sequelize(
+    dbConfig.db,
+    dbConfig.user,
+    dbConfig.password, 
+    {
+        host: dbConfig.host,
+        dialect: dbConfig.dialect,
+    },
+);
+
+
+
+db.authenticate().then(() => {
+    console.log("Connected...");
+}).catch((error) => {
+    console.error("Error: ", error);
 });
 
-export default db;
+module.export = db;
