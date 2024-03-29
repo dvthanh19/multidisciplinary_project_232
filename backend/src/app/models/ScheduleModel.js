@@ -20,7 +20,6 @@ const Schedule = db.define(
             },
         },
         room_id: {
-            type: DataTypes.STRING,
             primaryKey: true,
             type: DataTypes.ENUM,
             values: ['B1-201', 'B1-202', 'B1-203'],

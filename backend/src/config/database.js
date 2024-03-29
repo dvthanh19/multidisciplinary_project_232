@@ -19,4 +19,8 @@ db.authenticate().then(() => {
     console.error("Error: ", error);
 });
 
+
+
+
+
 module.export = db;

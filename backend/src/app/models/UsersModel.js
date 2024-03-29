@@ -22,7 +22,7 @@ const Users = db.define(
                 len: [3, 100]
             }
         },
-        hashpassword: {
+        password: {
             type: DataTypes.STRING(64),
             validate: {
                 is: /^[0-9a-f]{64}$/i
@@ -37,7 +37,8 @@ const Users = db.define(
             }
         },
         role: {
-            type: DataTypes.STRING,
+            type: DataTypes.ENUM,
+            values: ['admin', 'controller', 'observer'],
             allowNull: false,
             validate: {
                 notEmpty: true,
@@ -51,7 +52,7 @@ const Users = db.define(
                 isEmail: true,
             }
         },
-        phone_number: {
+        phone_num: {
             type: DataTypes.STRING,
             allowNull: true,
             validate: {
