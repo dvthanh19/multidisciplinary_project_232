@@ -38,7 +38,7 @@ app.use(express.urlencoded({ extended: true }));
 
 
 
-// app.use(routes)
+app.use(routes)
 // routes(app)
 // app.get('/', (req, res) => {
 //     return res.send('INDEX PAGE');

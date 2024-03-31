@@ -2,6 +2,9 @@ const Users = require('../models/UsersModel');
 
 
 class UserController {
+
+    foo = async (req, res, next) => {}
+
     // [GET]
     create = async (req, res, next) => {
         const { username, password, confPassword, fullname, email, phone_num} = req.body;
@@ -34,6 +37,65 @@ class UserController {
         }
     }
 
+    
+    getUserById = async (req, res, next) => {
+        try {
+            const user = await Users.findOne(
+                {
+                    where: {
+                        user_id: req.query.user_id
+                    }
+                }
+            )
+            if (!user) res.status(404).json({ msg: 'User not found' });
+
+            
+            res.status(200).json(user);
+        }
+        catch(err) {
+            res.status(500).json({ msg: err.message });
+        }
+    }
+
+    getUserByRole = async (req, res, next) => {
+        try {
+            const users = await Users.findAll(
+                {
+                    where: {
+                        role: req.query.role
+                    }
+                }
+            )
+            if (!users) res.status(404).json({ msg: 'User not found' });
+
+            
+            res.status(200).json(users);
+        }
+        catch(err) {
+            res.status(500).json({ msg: err.message });
+        }
+    }
+
+    update = async (req, res, next) => {
+        try {
+            const { username, new_password, new_fullname, new_email, new_phone_num } = req.body;
+            const updatedUser = Users.update({
+                password: new_password,
+                fullname: new_fullname,
+                email: new_email,
+                phone_numb: new_phone_num
+            }, {
+                where: {
+                    username: username,
+                },
+            });
+            res.status(200).json({ msg: "Product updated successfully" });
+        }
+        catch(err) {
+            res.status(500).json({ msg: err.message });
+        }
+    }
+
     updateRole = async(req, res, next) => {
         const { username, role } = req.body;
         const user = await Users.findOne({
@@ -58,71 +120,32 @@ class UserController {
         catch(err) {
             res.status(400).json({ msg: err.message });
         }
-        
-
-
-
-
-
-    }
-
-    getUser = async (req, res, next) => {
-        try {
-            const user = await Users.findOne(
-                {
-                    where: {
-                        user_id: req.params.userID
-                    }
-                }
-            )
-            if (!user) res.status(404).json({ msg: 'User not found' });
-
-            
-            res.status(200).json(user);
-        }
-        catch(err) {
-            res.status(500).json({ msg: err.message });
-        }
-    }
-
-    getUserById = async (req, res, next) => {
-        try {
-            const response = await Users.findOne({
-                where: {
-                    user_id: req.params.userID
-                }
-            });
-            res.status(200).json(response);
-        }
-        catch(err) {
-            res.status(500).json({ msg: err.message });
-        }
-    }
-
-
-    // not yet
-    update = async (req, res, next) => {
-        try {
-            const { username, new_password, new_fullname, new_email, new_phone_num } = req.body;
-            const updatedUser = Users.update({
-                password: new_password,
-                fullname: new_fullname,
-                email: new_email,
-                phone_numb: new_phone_num
-            }, {
-                where: {
-                    username: username,
-                },
-            });
-            res.status(200).json({ msg: "Product updated successfully" });
-        }
-        catch(err) {
-            res.status(500).json({ msg: err.message });
-        }
     }
 
     delete = async (req, res, next) => {
+        try {
+            const user = await Users.findOne({
+                where: {
+                    user_id: req.body.user_id
+                }
+            })
+            if (!user) return res.status(404).json({ msg: "User not exist" });
+            
 
+            if (req.role === "admin") {
+                await Devices.destroy({
+                    where: {
+                        user_id: req.body.user_id
+                    }
+                });
+            } else return res.status(403).json({ msg: "Access denied" });
+
+            res.status(200).json({ msg: "User deleted successfully" });
+    
+        }
+        catch(err) {
+            res.status(500).json({ msg: err.message });
+        }
     }
         
 }

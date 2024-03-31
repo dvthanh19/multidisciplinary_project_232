@@ -5,10 +5,10 @@ const controlRoute = require('./ControlRoute');
 
 
 function routes(app) {
-    app.use('/', homeRouter);
+    app.use('/', homeRoute);
     app.use('/dashboard', dashboardRoute);
-    // app.use('/user', userRouter);
-    // app.use('/control', controlRouter);
+    app.use('/user', userRoute);
+    app.use('/control', controlRoute);
 }
 
 module.exports = routes;

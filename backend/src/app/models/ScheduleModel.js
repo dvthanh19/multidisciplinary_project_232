@@ -44,4 +44,7 @@ const Schedule = db.define(
 );
 Users.hasMany(Schedule);
 Schedule.belongsTo(Users, { foreignKey: 'user_id' });
-export default Schedule;
+
+
+
+module.exports = Schedule;

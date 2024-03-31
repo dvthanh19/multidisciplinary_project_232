@@ -33,4 +33,6 @@ const Sensors = db.define(
         freezeTableName: true,
     }
 );
-export default Sensors;
+
+
+module.exports = Sensors;
