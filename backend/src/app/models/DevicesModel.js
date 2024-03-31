@@ -1,5 +1,5 @@
-import { Sequelize } from "sequelize";
-import db from "../config/database.js";
+const Sequelize = require("sequelize");
+const db = require("../../config/database.js") ;
 const { DataTypes } = Sequelize;
 
 const Devices = db.define(
@@ -12,9 +12,17 @@ const Devices = db.define(
                 notEmpty: true,
             }
         },
-        device_name: {
+        device_type: {
             type: DataTypes.STRING,
             allowNull: false,
+            validate: {
+                notEmpty: true,
+                len: [3, 100]
+            }
+        },
+        device_brand: {
+            type: DataTypes.STRING,
+            allowNull: true,
             validate: {
                 notEmpty: true,
                 len: [3, 100]
@@ -25,8 +33,13 @@ const Devices = db.define(
             values: ['B1-201', 'B1-202', 'B1-203'],
             allowNull: false,
         },
+        currentVal: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+        },
     }, {
         freezeTableName: true,
     }
 );
-export default Devices;
+
+module.exports = Devices;

@@ -1,14 +1,14 @@
-const homeRouter = require('./HomeRoute');
-const settingRouter = require('./DashboardRoute');
-const userRouter = require('./UserRoute');
-const controlRouter = require('./ControlRoute');
+const homeRoute = require('./HomeRoute');
+const dashboardRoute = require('./DashboardRoute');
+const userRoute = require('./UserRoute');
+const controlRoute = require('./ControlRoute');
 
 
 function routes(app) {
-    app.use('/', HomeRoute);
-    app.use('/dashboard', DashboardRoute);
-    app.use('/user', UserRoute);
-    app.use('/control', ControlRoute);
+    app.use('/', homeRouter);
+    app.use('/dashboard', dashboardRoute);
+    // app.use('/user', userRouter);
+    // app.use('/control', controlRouter);
 }
 
 module.exports = routes;

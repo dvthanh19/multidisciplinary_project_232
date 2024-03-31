@@ -1,5 +1,5 @@
-import { Sequelize } from "sequelize";
-import db from "../config/database.js";
+const Sequelize = require("sequelize");
+const db = require("../../config/database.js") ;
 const { DataTypes } = Sequelize;
 
 const Sensors = db.define(
@@ -12,7 +12,7 @@ const Sensors = db.define(
                 notEmpty: true,
             }
         },
-        sensor_name: {
+        sensor_type: {
             type: DataTypes.STRING,
             allowNull: false,
             validate: {
@@ -24,6 +24,10 @@ const Sensors = db.define(
             type: DataTypes.ENUM,
             values: ['B1-201', 'B1-202', 'B1-203'],
             allowNull: false,
+        },
+        currentVal: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
         },
     }, {
         freezeTableName: true,

@@ -1,5 +1,5 @@
-import { response } from "express";
-const Devices = require('../models/DevicesModel');
+// import response from "express";
+const Devices = require("../models/DevicesModel");
 
 
 class HomeController {
@@ -43,9 +43,9 @@ class HomeController {
     // [POST]
     update = async (req, res, next) => {
         try {
-            const { deviceID, deviceName, roomID } = req.body;
+            const { deviceID, deviceType, roomID } = req.body;
             const updatedDevice = Devices.update({
-                device_name: deviceName,
+                device_type: deviceType,
                 room_id: roomID,
             }, {
                 where: {

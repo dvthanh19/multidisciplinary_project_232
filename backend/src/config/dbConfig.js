@@ -6,4 +6,4 @@ const dbConfig = {
     dialect:'mysql',
 }
 
-export default dbConfig;
+module.exports = dbConfig

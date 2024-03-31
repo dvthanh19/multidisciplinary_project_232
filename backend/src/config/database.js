@@ -1,5 +1,5 @@
-import sequelize, { Sequelize } from "sequelize";
-const dbConfig = require("./dbCongig.js")
+const Sequelize = require("sequelize");
+const dbConfig = require("./dbConfig.js")
 
 const db = new Sequelize(
     dbConfig.db,
@@ -23,4 +23,4 @@ db.authenticate().then(() => {
 
 
 
-module.export = db;
+module.exports = db;

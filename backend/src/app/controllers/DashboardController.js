@@ -2,20 +2,24 @@
 
 
 class DashboardController {
+
+    foo = (req, res, next) => {
+    }
+
     // [GET]
-    create(req, res, next) {
+    create = async (req, res, next) => {
          
     }
 
-    read(req, res, next) {
+    read = async (req, res, next) => {
          
     }
 
-    update(req, res, next) {
+    update = async (req, res, next) => {
          
     }
 
-    delete(req, res, next) {
+    delete = async (req, res, next) => {
          
     }
 
