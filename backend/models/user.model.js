@@ -1,27 +1,11 @@
 const mongoose = require('mongoose');
 
-// User:
-
-//     'userID': {type: String},
-//     'username': {type: String},
-//     'hashedPassword': {type: String},
-//     'fullname': {type: String},
-//     'role': {type: String}, #student, teacher, admin
-//     'email': {type: String},
-//     'schedule': {type: JSON_Object}
-//     'phoneNo': {type: int}
-//     'positionList': array of String; #list of classID, only for students
-
 const userSchema = new mongoose.Schema({
-    userID: {
+    email: {
         type: String,
         required: true
     },
-    username: {
-        type: String,
-        required: true
-    },
-    hashedPassword: {
+    password: {
         type: String,
         required: true
     },
@@ -33,10 +17,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    email: {
-        type: String,
-        required: false
-    },
+    
     schedule: {
         type: Object,
         required: false

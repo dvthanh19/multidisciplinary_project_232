@@ -1,10 +1,3 @@
-// Device:
-//  'deviceID': {type: String},
-//     'name': {type: String},
-//     'type': {type: String},
-//     'position': {type: String},
-//     'curValue': {type: Integer}
-
 const mongoose = require('mongoose');
 const deviceSchema = new mongoose.Schema({
 
@@ -25,8 +18,14 @@ const deviceSchema = new mongoose.Schema({
         required: true
     },
     curValue: {
-        type: Number,
-        required: true
+        lastValue: {
+            type: String, 
+            required: false 
+        },
+        updatedAt: {
+            type: Date, 
+            required: false 
+        }
     }
  });
 

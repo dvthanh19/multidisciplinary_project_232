@@ -1,4 +1,5 @@
 const User = require('../models/user.model')
+const bcrypt = require('bcrypt')
 
 const getUser = async (req, res) => {
     try {
@@ -18,14 +19,28 @@ const getUserById = async (req, res) => {
         console.log(error)
     }
 }
+// Create user with raw password not hashed yet then hash it before saving to database
 const createUser = async (req, res) => {
     try {
-        const user = await User.create(req.body)
-        res.status(200).json({user})
+        const user = await User.findOne({email: req.body.email})
+        if(user){
+            res.status(400).json({message: 'User already exists'})
+        }
+        const hashedPassword = await bcrypt.hash(req.body.password, 10)
+        // create new user with hashed password
+        const newUser = await User.create({
+            email: req.body.email,
+            password: hashedPassword,
+            fullname: req.body.fullname,
+            role: req.body.role,
+            schedule: req.body.schedule,
+            phoneNo: req.body.phoneNo,
+            positionList: req.body.positionList
+        })
+        res.status(201).json({newUser})
     }catch (error) {
         res.status(500).json({message: error.message})
         console.log(error)
-
     }
 }
 const updateUser = async (req, res) => {

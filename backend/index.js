@@ -3,11 +3,13 @@ const app = express()
 const userRoute = require('./routes/user.route')
 
 const User = require('./models/user.model.js')
+const Device = require('./models/device.model.js')
 
 
 //middleware
 app.use(express.json())
 app.use(express.urlencoded({extended: true}));
+
 
 
 
@@ -22,7 +24,9 @@ app.get('/', (req, res) => {
 app.use("/api/user", require("./routes/user.route.js"));
 
 
+app.use("/api/auth", require("./routes/auth.route.js"));
 
+app.use("/api/device", require("./routes/device.route.js"));
 
 
 const mongoose = require('mongoose')
