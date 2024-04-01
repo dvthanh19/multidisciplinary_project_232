@@ -1,17 +1,19 @@
 import { useState } from "react";
 
-import { Card, Stack, Typography, Box, IconButton } from "@mui/joy";
+import { Card, Stack, Typography, Box, IconButton, Chip } from "@mui/joy";
 
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
 import SettingsIcon from "@mui/icons-material/Settings";
+import { Edit } from "@mui/icons-material";
 
 const DeviceSurface = ({
     deviceName, // Name of device to be displayed
     deviceLocation, // Location of the device to be displayed
-    addNumberActiveDevicesHook,  // Hook to increase the number of Active devices (used in DeviceList)
+    addNumberActiveDevicesHook, // Hook to increase the number of Active devices (used in DeviceList)
+    deviceTagIcon, // Icon for the chip tag next to deviceName
+    deviceTagName, // Name of the chip tag next to deviceLocation
 }) => {
     const [deviceOn, setDeviceOn] = useState(true);
 
@@ -30,9 +32,40 @@ const DeviceSurface = ({
                 <Stack
                     direction="row"
                     spacing={2}
-                    alignItems="flex-start"
+                    alignItems="center"
                     justifyContent="space-between"
                 >
+                    <Box>
+                        <Stack
+                            direction="row"
+                            spacing={2}
+                            alignItems="center"
+                            justifyContent="flex-start"
+                        >
+                            <Box maxWidth={300}>
+                                {/* <Typography endDecorator={deviceIcon} level="h3" noWrap> */}
+                                <Typography
+                                    endDecorator={
+                                        <Chip
+                                            variant="soft"
+                                            endDecorator={deviceTagIcon}
+                                            size="lg"
+                                        >
+                                            {deviceTagName}
+                                        </Chip>
+                                    }
+                                    level="h3"
+                                    noWrap
+                                >
+                                    {deviceName}
+                                </Typography>
+                                <Typography level="body-sm" noWrap>
+                                    {deviceLocation}
+                                </Typography>
+                            </Box>
+                        </Stack>
+                    </Box>
+
                     <IconButton
                         size="lg"
                         variant="solid"
@@ -45,19 +78,6 @@ const DeviceSurface = ({
                     >
                         <PowerSettingsNewIcon />
                     </IconButton>
-
-                    <Box maxWidth={300}>
-                        <Typography level="h3" noWrap>
-                            {deviceName}
-                        </Typography>
-                        <Typography
-                            level="body-sm"
-                            startDecorator={<LocationOnIcon />}
-                            noWrap
-                        >
-                            {deviceLocation}
-                        </Typography>
-                    </Box>
                 </Stack>
                 <Stack spacing={0} direction="column">
                     <Box>
@@ -67,6 +87,9 @@ const DeviceSurface = ({
                             justifyContent="flex-start"
                         >
                             <Box>
+                                <IconButton size="sm" disabled>
+                                    <Edit />
+                                </IconButton>
                                 <IconButton size="sm" disabled>
                                     <SettingsIcon />
                                 </IconButton>
@@ -83,7 +106,9 @@ const DeviceSurface = ({
                         id="ContentBox"
                         sx={{ height: 180, overflow: "scroll" }}
                     >
-                        <Card sx={{ height: 356 }}>Embed any graph here</Card>
+                        <Card sx={{ height: 356 }}>
+                            Embed any Device Control here
+                        </Card>
                     </Box>
                 </Stack>
             </Stack>

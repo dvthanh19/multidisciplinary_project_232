@@ -1,14 +1,11 @@
 import { Stack, Typography, Chip, Box } from "@mui/joy";
 
-import DoneIcon from "@mui/icons-material/Done";
-import SensorsOffIcon from "@mui/icons-material/SensorsOff";
+import DeviceThermostatIcon from '@mui/icons-material/DeviceThermostat';
 
-import LightbulbIcon from "@mui/icons-material/Lightbulb";
-
-import DeviceSurface from "components/DeviceList/DeviceSurface";
+import SensorSurface from "components/SensorList/SensorSurface"
 import { useState } from "react";
 
-const DeviceList = (deviceList = []) => {
+const SensorList = (deviceList = []) => {
     // Insist deviceList to be a dictionary like this:
     /**
      * [
@@ -34,22 +31,8 @@ const DeviceList = (deviceList = []) => {
         <Stack spacing={1} direction="column">
             <Stack spacing={1} direction="row">
                 <Typography sx={{ color: "neutral.500" }}>
-                    Available devices
+                    Available sensors
                 </Typography>
-                <Chip
-                    variant="outlined"
-                    color="success"
-                    startDecorator={<DoneIcon />}
-                >
-                    Active {numberActiveDevices}
-                </Chip>
-                <Chip
-                    variant="outlined"
-                    color="danger"
-                    startDecorator={<SensorsOffIcon />}
-                >
-                    Unactive {numberOfDevices - numberActiveDevices}
-                </Chip>
             </Stack>
             <Typography
                 level="title-md"
@@ -65,12 +48,12 @@ const DeviceList = (deviceList = []) => {
             >
                 {/* Just for demo */}
                 {Array.from(Array(numberOfDevices)).map((_, index) => (
-                    <DeviceSurface
-                        deviceTagName="Lights"
-                        deviceTagIcon={<LightbulbIcon />}
-                        deviceName={`Device 10${index}`}
-                        deviceLocation="268, Ly Thuong kiet, Dist 10"
-                        addNumberActiveDevicesHook={addActiveDevices}
+                    <SensorSurface
+                        sensorName={`Sensor 10${index}`}
+                        sensorLocation="268, Ly Thuong kiet, Dist 10"
+                        sensorTagIcon={<DeviceThermostatIcon/>}
+                        sensorTagName="Temperature"
+                        sensorStatus={true}
                     />
                 ))}
             </Stack>
@@ -78,4 +61,4 @@ const DeviceList = (deviceList = []) => {
     );
 };
 
-export default DeviceList;
+export default SensorList;
