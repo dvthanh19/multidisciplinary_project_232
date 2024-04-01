@@ -14,6 +14,7 @@ const DeviceSurface = ({
     addNumberActiveDevicesHook, // Hook to increase the number of Active devices (used in DeviceList)
     deviceTagIcon, // Icon for the chip tag next to deviceName
     deviceTagName, // Name of the chip tag next to deviceLocation
+    controlPanel, // The controllable panel of each DeviceSurface, this is a React component
 }) => {
     const [deviceOn, setDeviceOn] = useState(true);
 
@@ -23,9 +24,9 @@ const DeviceSurface = ({
             variant="soft"
             color={deviceOn ? "primary" : "success"}
             sx={{
-                minWidth: 400,
-                minHeight: 300,
-                maxHeight: 300,
+                minWidth: "60vh",
+                minHeight: "40vh",
+                maxHeight: "40vh",
             }}
         >
             <Stack direction="column" spacing={4}>
@@ -106,9 +107,7 @@ const DeviceSurface = ({
                         id="ContentBox"
                         sx={{ height: 180, overflow: "scroll" }}
                     >
-                        <Card sx={{ height: 356 }}>
-                            Embed any Device Control here
-                        </Card>
+                        {controlPanel}
                     </Box>
                 </Stack>
             </Stack>
