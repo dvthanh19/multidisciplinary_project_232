@@ -1,12 +1,13 @@
+import { useState } from "react";
+
 import { Stack, Typography, Chip, Box } from "@mui/joy";
 
 import DoneIcon from "@mui/icons-material/Done";
 import SensorsOffIcon from "@mui/icons-material/SensorsOff";
-
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
 
+import LightControlPanel from "components/DeviceList/ControlPanel/LightControlPanel";
 import DeviceSurface from "components/DeviceList/DeviceSurface";
-import { useState } from "react";
 
 const DeviceList = (deviceList = []) => {
     // Insist deviceList to be a dictionary like this:
@@ -71,6 +72,7 @@ const DeviceList = (deviceList = []) => {
                         deviceName={`Device 10${index}`}
                         deviceLocation="268, Ly Thuong kiet, Dist 10"
                         addNumberActiveDevicesHook={addActiveDevices}
+                        controlPanel={<LightControlPanel isDisabled={false}/>}
                     />
                 ))}
             </Stack>
