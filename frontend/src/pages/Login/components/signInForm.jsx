@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Input, Stack, Card, Typography, Link } from "@mui/material";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../../features/userSlice";
+import { InputAdornment, TextField, Stack, Card, Typography, Link, Box } from "@mui/material";
 import Button from "@mui/joy/Button";
 import { Person, VpnKey } from "@mui/icons-material";
 
 const SignInForm = ({ setLogin }) => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [credentials, setCredentials] = useState({ email: "", password: "" });
 
     const handleChange = (e) => {
@@ -14,7 +17,7 @@ const SignInForm = ({ setLogin }) => {
     };
 
     const submitSignInForm = async (e) => {
-        e.preventDefault(); // Ngăn chặn form từ việc submit theo cách truyền thống
+        e.preventDefault();
         try {
             const response = await fetch("http://localhost:3000/api/auth/login", {
                 method: "POST",
@@ -29,53 +32,85 @@ const SignInForm = ({ setLogin }) => {
                 throw new Error(data.message || "An error occurred");
             }
 
-            // Lưu token vào localStorage và điều hướng người dùng
+            dispatch(setUser({ userData: data.userData }));
             localStorage.setItem("authToken", data.token);
             navigate("/home");
         } catch (error) {
-            alert(error.message); // Hiển thị thông báo lỗi
+            alert(error.message);
         }
     };
 
     return (
-        <Card sx={{ minWidth: "25vw", minHeight: "60vh" }}>
-            <Stack spacing={8}>
-                <Stack>
-                    <Typography variant="h4" sx={{ fontWeight: 700 }}>
+        <Box sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '100vh',
+            backgroundImage: 'linear-gradient(to right, #6a11cb 0%, #2575fc 100%)', /* Sample gradient */
+        }}>
+            <Card sx={{
+                minWidth: "25vw",
+                minHeight: "60vh",
+                padding: 4,
+                boxShadow: 3,
+                borderRadius: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                background: 'rgba(255, 255, 255, 0.8)', /* Semi-transparent white */
+            }}>
+                <Stack spacing={4} alignItems="center">
+                    <Typography variant="h4" sx={{ fontWeight: 700, textAlign: 'center' }}>
                         Sign in
                     </Typography>
                     <Typography>
                         Don't have an account?&nbsp;
-                        <Link onClick={() => setLogin(false)} underline="always">
+                        <Link onClick={() => setLogin(false)} underline="hover" sx={{ cursor: 'pointer', color: 'primary.main' }}>
                             Sign Up
                         </Link>
                     </Typography>
+                    <form onSubmit={submitSignInForm} style={{ width: '100%' }}>
+                        <Stack spacing={2} alignItems="center">
+                            <TextField
+                                fullWidth
+                                variant="outlined"
+                                name="email"
+                                placeholder="Email"
+                                type="email"
+                                value={credentials.email}
+                                onChange={handleChange}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <Person />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                            <TextField
+                                fullWidth
+                                variant="outlined"
+                                name="password"
+                                placeholder="Password"
+                                type="password"
+                                value={credentials.password}
+                                onChange={handleChange}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <VpnKey />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                            <Button type="submit" sx={{ marginTop: 2, width: '100%', bgcolor: 'primary.main', ':hover': { bgcolor: 'primary.dark' } }}>
+                                Sign In
+                            </Button>
+                        </Stack>
+                    </form>
                 </Stack>
-                <form onSubmit={submitSignInForm}>
-                    <Stack spacing={2}>
-                        <Input
-                            name="email"
-                            startDecorator={<Person />}
-                            placeholder="Email"
-                            type="email"
-                            value={credentials.email}
-                            onChange={handleChange}
-                        />
-                        <Input
-                            name="password"
-                            startDecorator={<VpnKey />}
-                            placeholder="Password"
-                            type="password"
-                            value={credentials.password}
-                            onChange={handleChange}
-                        />
-                        <Button type="submit">
-                            Sign In
-                        </Button>
-                    </Stack>
-                </form>
-            </Stack>
-        </Card>
+            </Card>
+        </Box>
     );
 };
 

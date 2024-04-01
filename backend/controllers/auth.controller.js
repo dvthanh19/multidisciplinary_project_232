@@ -23,24 +23,18 @@ const Login = async (req, res) => {
         res.status(500).json({message: error.message});
     }
 };
+// get user info with token
 const Me = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id)
-        res.status(200).json({user})
-    }catch (error) {
-        res.status(500).json({message: error.message})
+        
+        res.status(200).json(req.user);
+    }
+    catch (error) {
+        res.status(500).json({message: error.message});
         console.log(error)
     }
 }
-
-
-
 const Logout = async (req, res) => {
-    try {
-        res.header('auth-token', '').json({message: 'Logged out'})
-    }catch (error) {
-        res.status(500).json({message: error.message})
-        console.log(error)
-    }
+    res.json({message: 'Please clear your token on client side'});
 }
 module.exports = {Login, Me, Logout}

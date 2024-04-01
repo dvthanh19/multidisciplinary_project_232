@@ -3,7 +3,7 @@ import { Breadcrumbs, Link } from "@mui/joy";
 const AppBreadcrumb = () => {
     const breadcrumbStack = [
         { name: "Home", href: "#" },
-        { name: "Some Link", href: "#" },
+    //  { name: "Some Link", href: "#" },
     ]; // WARNING: this feature is not implemented and will always display "Home" by default
 
     return (

@@ -1,32 +1,35 @@
-import { Stack, Typography, Chip, Box } from "@mui/joy";
-
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Stack, Chip, Box, Typography } from "@mui/joy";
 import DoneIcon from "@mui/icons-material/Done";
 import SensorsOffIcon from "@mui/icons-material/SensorsOff";
-
 import DeviceSurface from "components/DeviceSurface";
-import { useState } from "react";
 
-const DeviceList = (deviceList = []) => {
-    // Insist deviceList to be a dictionary like this:
-    /**
-     * [
-     *  {
-     *      deviceName: "",
-     *      deviceLocation: ""
-     *  },
-     *  {},
-     *  {},
-     *  {},
-     * ]
-     */
-    deviceList = [{ a: "a" }, { a: "a" }, { a: "a" }, { a: "a" }, { a: "a" }]; // Just for demo
+const DeviceList = () => {
+    const [devices, setDevices] = useState([]);
+    const [numberOfDevice, setNumberOfDevices] = useState(0);
+    const [numberOfSensor, setNumberOfSensors] = useState(0);
+    const [activeDevices, setActiveDevices] = useState(0);
+    const [activeSensors, setActiveSensors] = useState(0);
 
-    // For displaying active devices/unactive devices Chips.
-    const numberOfDevices = deviceList.length;
-    const [numberActiveDevices, setActiveDevices] = useState(numberOfDevices);
-    const addActiveDevices = (adder) => {
-        setActiveDevices(numberActiveDevices + adder);
-    };
+    useEffect(() => {
+        const fetchDevices = async () => {
+            try {
+                const response = await axios.get("http://localhost:3000/api/device/");
+                setDevices(response.data.device);
+                // Assuming active is determined by curValue presence
+                setActiveDevices(response.data.device.filter(device => device.curValue && device.type ==="Device").length);
+                setNumberOfDevices(response.data.device.filter(device => device.type ==="Device").length);
+                setNumberOfSensors(response.data.device.filter(device => device.type ==="Sensor").length);
+                setActiveSensors(response.data.device.filter(device => device.curValue && device.type ==="Sensor").length);
+                
+            } catch (error) {
+                console.error("Failed to fetch devices:", error);
+            }
+        };
+
+        fetchDevices();
+    }, []);
 
     return (
         <Stack spacing={1} direction="column">
@@ -39,39 +42,71 @@ const DeviceList = (deviceList = []) => {
                     color="success"
                     startDecorator={<DoneIcon />}
                 >
-                    Active {numberActiveDevices}
+                    Active {activeDevices}
                 </Chip>
                 <Chip
                     variant="outlined"
                     color="danger"
                     startDecorator={<SensorsOffIcon />}
                 >
-                    Unactive {numberOfDevices - numberActiveDevices}
+                    Unactive {numberOfDevice - activeDevices}
                 </Chip>
             </Stack>
-            <Typography
-                level="title-md"
-                noWrap={false}
-                variant="plain"
-                sx={{ px: 2 }}
-            ></Typography>
             <Stack
                 spacing={2}
                 direction="row"
                 flexWrap="nowrap"
                 sx={{ overflow: "auto" }}
             >
-                {/* Just for demo */}
-                {Array.from(Array(numberOfDevices)).map((_, index) => (
+                {devices.filter(device => device.type === 'Device').map((device) => (
                     <DeviceSurface
-                        deviceName={`Device 10${index}`}
-                        deviceLocation="268, Ly Thuong kiet, Dist 10"
-                        addNumberActiveDevicesHook={addActiveDevices}
+                        id={device._id}
+                        deviceID={device.deviceID}
+                        name={device.name}
+                        type={device.type}
+                        position={device.position}
+                    />
+                ))}
+            </Stack>
+            <Stack spacing={1} direction="row">
+                <Typography sx={{ color: "neutral.500" }}>
+                    Available sensors
+                </Typography>
+                <Chip
+                    variant="outlined"
+                    color="success"
+                    startDecorator={<DoneIcon />}
+                >
+                    Active {activeSensors}
+                </Chip>
+                <Chip
+                    variant="outlined"
+                    color="danger"
+                    startDecorator={<SensorsOffIcon />}
+                >
+                    Unactive {numberOfSensor - activeSensors}
+                </Chip>
+            </Stack>
+            <Stack
+                spacing={2}
+                direction="row"
+                flexWrap="nowrap"
+                sx={{ overflow: "auto" }}
+            >
+                {devices.filter(device => device.type === 'Sensor').map((device) => (
+                    <DeviceSurface
+                        id={device._id}
+                        deviceID={device.deviceID}
+                        name={device.name}
+                        type={device.type}
+                        position={device.position}
                     />
                 ))}
             </Stack>
         </Stack>
     );
 };
+
+
 
 export default DeviceList;

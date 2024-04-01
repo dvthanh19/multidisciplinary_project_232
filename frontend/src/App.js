@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import IotDashboard from "pages/IotDashboard";
 import Login from "pages/Login";
+import PrivateRoute from "components/PrivateRoute/PrivateRoute.js";
 
 import routes from "appRoutes";
 
@@ -16,7 +17,9 @@ const App = () => {
                 <Route path="/portal" element={<Login />} />
 
                 {/* Special pages LISTED in SideNave */}
-                <Route path={routes[0].route} element={<IotDashboard />} />
+                <Route path={routes[0].route} element={ <PrivateRoute>
+                    <IotDashboard />
+                  </PrivateRoute>} />
             </Routes>
         </BrowserRouter>
     );

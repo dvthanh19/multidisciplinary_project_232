@@ -19,7 +19,7 @@ const GetDeviceById = async (req, res) => {
         }
 
         // Fetch the current value from Adafruit using the device name as the feedKey
-        const currentValue = await fetchCurrentValueFromAdafruit(device.name);
+        const currentValue = await fetchCurrentValueFromAdafruit(device.deviceID);
 
         // Update the device's current value in the database
         device.curValue = {
@@ -46,8 +46,9 @@ const CreateDevice = async (req, res) => {
         if(device){
             res.status(400).json({message: 'Device already exists'})
         }
+        else {
         const newDevice = await Device.create(req.body)
-        res.status(201).json({newDevice})
+        res.status(201).json({newDevice})}
     }
     catch (error) {
         res.status(500).json({message: error.message})
