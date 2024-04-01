@@ -5,7 +5,7 @@ class UserController {
 
     foo = async (req, res, next) => {}
 
-    // [GET]
+    // [POST]
     create = async (req, res, next) => {
         const { username, password, confPassword, fullname, email, phone_num} = req.body;
         const user = await Users.findOne({
@@ -24,13 +24,14 @@ class UserController {
         const hashedPassword = await argon2.hash(password);
         try {
             await Users.create({
-                username: username,
+                username,
                 password: hashedPassword,
-                fullname: fullname,
-                email: email,
-                role: 'observer'
+                fullname,
+                email,
+                phone_num,
+                role: 'observer',
             });
-            res.status(201).json({ msg: "Register successfully" });
+            res.status(201).json({ msg: "Register successfully!" });
         }
         catch(err) {
             res.status(400).json({ msg: err.message });

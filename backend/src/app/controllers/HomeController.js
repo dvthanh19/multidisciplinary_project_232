@@ -7,7 +7,9 @@ class HomeController {
     static deviceIdx = 0
     static sensorIdx = 0
 
-    foo = async (req, res, next) => {}
+    foo = async (req, res, next) => {
+        res.send('INDEX_PAGE')
+    }
 
     // [POST]
     createDevices = async (req, res, next) => {
