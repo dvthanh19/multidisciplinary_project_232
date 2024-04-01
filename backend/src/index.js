@@ -37,13 +37,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-
-app.use(routes)
+app.get('/', (req, res) => {
+    return res.send('INDEX PAGE');
+})
+// app.use(routes)
 // routes(app)
 // app.get('/', (req, res) => {
 //     return res.send('INDEX PAGE');
 // })
 
 
-// app.listen(port, () => console.log('Listening on http://localhost:' + port))
-app.listen(process.env.APP_PORT, () => console.log('Server up and running ...'));
+app.listen(port, () => console.log('Listening on http://localhost:' + port))
+// app.listen(process.env.APP_PORT, () => console.log('Listening on http://localhost:' + port));
