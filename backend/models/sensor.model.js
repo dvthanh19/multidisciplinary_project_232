@@ -24,8 +24,14 @@ const sensorSchema = new mongoose.Schema({
             required: true
         },
         curValue: {
-            type: Number,
-            required: true
+            lastValue: {
+                type: String, 
+                required: false 
+            },
+            updatedAt: {
+                type: Date, 
+                required: false 
+            }
         }
     });
     

@@ -85,32 +85,6 @@ const DeleteDevice = async (req, res) => {
 }
 
 
-// const UpdateDeviceCurrentValue = async (req, res) => {
-//     try {
-//         // Lấy deviceID từ request body
-//         const { deviceID } = req.body;
-
-//         // Tìm thiết bị bằng deviceID
-//         const device = await Device.findOne({ deviceID: deviceID });
-//         if (!device) {
-//             return res.status(404).json({ message: 'Device not found' });
-//         }
-
-//         // Gọi helper function để lấy giá trị hiện tại từ Adafruit
-//         const feedKey = device.name; // Sử dụng name từ đối tượng thiết bị tìm được
-//         const currentValue = await fetchCurrentValueFromAdafruit(feedKey);
-
-//         // Cập nhật giá trị hiện tại trong database
-//         device.curValue = currentValue;
-//         await device.save();
-
-//         // Trả về giá trị hiện tại đã cập nhật
-//         res.status(200).json({ device });
-//     } catch (error) {
-//         res.status(500).json({ message: error.message });
-//     }
-// };
-
 const fetchCurrentValueFromAdafruit = async (feedKey) => {
     const ADAFRUIT_IO_USERNAME = '1zy';
     const ADAFRUIT_IO_KEY = 'aio_HQHl865UcZU9BnFNjemUKCfwh7Vx';

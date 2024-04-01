@@ -5,6 +5,8 @@ const userRoute = require('./routes/user.route')
 const User = require('./models/user.model.js')
 const Device = require('./models/device.model.js')
 
+const cors = require('cors');
+app.use(cors());
 
 //middleware
 app.use(express.json())
