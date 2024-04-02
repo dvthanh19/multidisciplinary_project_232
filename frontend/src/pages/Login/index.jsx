@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Box, Container } from "@mui/joy";
+import { Box, Container, Stack } from "@mui/joy";
 
 import SignInForm from "./components/signInForm";
 import SignUpForm from "./components/signUpForm";
@@ -20,13 +20,18 @@ const Login = () => {
                 alignItems: "center",
             }}
         >
-            <Container sx={{ display: "flex" }}>
+            <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent="center"
+                spacing={10}
+            >
                 <Title />
                 <Box>
                     {isLogin && <SignInForm setLogin={setLogin} />}
                     {!isLogin && <SignUpForm setLogin={setLogin} />}
                 </Box>
-            </Container>
+            </Stack>
         </Container>
     );
 };

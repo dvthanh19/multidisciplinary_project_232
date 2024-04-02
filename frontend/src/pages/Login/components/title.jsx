@@ -5,11 +5,7 @@ import { Typography, Link, Container } from "@mui/material";
 
 const Title = () => {
     return (
-        <Box
-            sx={{
-                display: "flex",
-            }}
-        >
+        <Box sx={{ width: 500 }}>
             <Stack spacing={2}>
                 <Typography variant="h1" sx={{ fontWeight: 700 }}>
                     Smart Classroom

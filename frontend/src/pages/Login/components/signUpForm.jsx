@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Input, Stack, Card, Typography, Link, Box } from "@mui/material";
+import {
+    Stack,
+    Card,
+    Typography,
+    Link,
+    TextField,
+    InputAdornment,
+} from "@mui/material";
 import Button from "@mui/joy/Button";
 import { Person, VpnKey, Email } from "@mui/icons-material";
 
@@ -48,68 +55,117 @@ const SignUpForm = ({ setLogin }) => {
     };
 
     return (
-        <Card sx={{
-            minWidth: "25vw",
-            minHeight: "60vh",
-            backgroundColor: "#f5f5f5", // Example background color
-            borderRadius: "16px", // Rounded corners
-            boxShadow: "0 8px 16px 0 rgba(0,0,0,0.2)", // Box shadow for depth
-        }}>
-            <Stack spacing={3} sx={{ padding: "32px" }}>
+        <Card
+            sx={{
+                minWidth: "25vw",
+                minHeight: "60vh",
+                backgroundColor: "#f5f5f5", // Example background color
+                borderRadius: "16px", // Rounded corners
+                boxShadow: "0 8px 16px 0 rgba(0,0,0,0.2)", // Box shadow for depth
+                p: 4,
+            }}
+        >
+            <Stack spacing={3}>
                 <Stack spacing={2}>
-                    <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center" }}>
+                    <Typography
+                        variant="h4"
+                        sx={{ fontWeight: 700, textAlign: "center" }}
+                    >
                         Sign Up
                     </Typography>
                     <Typography textAlign="center">
                         Already have an account?&nbsp;
-                        <Link component="button" onClick={() => setLogin(true)} underline="always">
+                        <Link
+                            component="button"
+                            onClick={() => setLogin(true)}
+                            underline="always"
+                        >
                             Sign In
                         </Link>
                     </Typography>
+                    {error && (
+                        <Typography color="error" textAlign="center">
+                            {error}
+                        </Typography>
+                    )}
                 </Stack>
-                {error && (
-                    <Typography color="error" textAlign="center">
-                        {error}
-                    </Typography>
-                )}
                 <form onSubmit={handleSubmit}>
-                    <Stack spacing={2}>
-                        <Input
+                    <Stack spacing={2} alignItems="center">
+                        <TextField
+                            fullWidth
+                            variant="outlined"
                             name="email"
-                            startDecorator={<Email />}
                             placeholder="Email"
                             type="email"
                             value={userData.email}
                             onChange={handleChange}
-                            fullWidth
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Person />
+                                    </InputAdornment>
+                                ),
+                            }}
                         />
-                        <Input
+                        <TextField
+                            fullWidth
+                            variant="outlined"
                             name="fullname"
-                            startDecorator={<Person />}
                             placeholder="Full Name"
                             value={userData.fullname}
+                            type="text"
                             onChange={handleChange}
-                            fullWidth
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <Person />
+                                    </InputAdornment>
+                                ),
+                            }}
                         />
-                        <Input
+                        <TextField
+                            fullWidth
+                            variant="outlined"
                             name="password"
-                            startDecorator={<VpnKey />}
                             placeholder="Password"
-                            type="password"
                             value={userData.password}
-                            onChange={handleChange}
-                            fullWidth
-                        />
-                        <Input
-                            name="confirmPassword"
-                            startDecorator={<VpnKey />}
-                            placeholder="Confirm Password"
                             type="password"
-                            value={userData.confirmPassword}
                             onChange={handleChange}
-                            fullWidth
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <VpnKey />
+                                    </InputAdornment>
+                                ),
+                            }}
                         />
-                        <Button type="submit" sx={{ mt: 2 }}>Sign Up</Button>
+                        <TextField
+                            fullWidth
+                            variant="outlined"
+                            name="confirmPassword"
+                            placeholder="Confirm Password"
+                            value={userData.confirmPassword}
+                            type="password"
+                            onChange={handleChange}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <VpnKey />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+                        <Button
+                            type="submit"
+                            sx={{
+                                marginTop: 2,
+                                width: "100%",
+                                bgcolor: "primary.main",
+                                ":hover": { bgcolor: "primary.dark" },
+                            }}
+                        >
+                            Sign Up
+                        </Button>
                     </Stack>
                 </form>
             </Stack>
