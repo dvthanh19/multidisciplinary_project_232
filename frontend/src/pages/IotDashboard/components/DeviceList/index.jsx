@@ -3,7 +3,7 @@ import axios from "axios";
 import { Stack, Chip, Box, Typography } from "@mui/joy";
 import DoneIcon from "@mui/icons-material/Done";
 import SensorsOffIcon from "@mui/icons-material/SensorsOff";
-import DeviceSurface from "components/DeviceSurface";
+import DeviceSurface from "../DeviceSurface";
 
 const DeviceList = () => {
     const [devices, setDevices] = useState([]);

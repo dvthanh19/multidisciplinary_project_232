@@ -1,5 +1,4 @@
 import PageLayout from "layouts/PageLayout";
-import DeviceList from "components/DeviceList";
 import { Card } from "@mui/joy";
 
 const DataDashboard = () => {

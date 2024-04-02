@@ -3,7 +3,7 @@ import { Card, Stack, Typography, Box, IconButton, Chip } from "@mui/joy";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import InfoIcon from "@mui/icons-material/Info";
-import DeviceDetailModal from "components/DetailDevice/DeviceDetailModal";
+import DeviceDetailModal from "../DetailDevice/DeviceDetailModal";
 import { Line } from "react-chartjs-2";
 import "chart.js/auto";
 
