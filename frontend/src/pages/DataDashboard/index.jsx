@@ -1,20 +1,12 @@
 import PageLayout from "layouts/PageLayout";
 import { Card } from "@mui/joy";
+import Surface from "./components/Surface";
+import List from "./components/List";
 
 const DataDashboard = () => {
     return (
         <PageLayout focusOnRouteID={"datadashboard"}>
-            <Card>asdfasdf</Card>
-            <Card>asdfasdf</Card>
-            <Card>asdfasdf</Card>
-            <Card>asdfads</Card>
-            <Card></Card>
-            <Card></Card>
-            <Card></Card>
-            <Card></Card>
-            <Card></Card>
-            <Card></Card>
-            <Card></Card>
+            <List name="User Data Analytics"/>
         </PageLayout>
     );
 };
