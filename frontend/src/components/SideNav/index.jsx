@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser, clearUser } from "../../features/userSlice"; // Cập nhật đường dẫn nếu cần
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import Box from "@mui/joy/Box";
 import List from "@mui/joy/List";
 import ListItem from "@mui/joy/ListItem";
@@ -91,8 +91,8 @@ const SideNav = ({ focusOnRouteID }) => {
                 <Divider orientation="horizontal" sx={{ my: 3 }} />
 
                 {routes.map((route) => (
-                    <ListItem key={route.key}>
-                        <ListItemButton selected={focusOnRouteID === route.key}>
+                    <ListItem  key={route.key}>
+                        <ListItemButton onClick={ () => navigate(route.route) } selected={focusOnRouteID === route.key}>
                             <ListItemDecorator sx={{ color: "neutral.solidBg" }}>
                                 {route.icon}
                             </ListItemDecorator>

@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import IotDashboard from "pages/IotDashboard";
 import Login from "pages/Login";
 import PrivateRoute from "components/PrivateRoute/PrivateRoute.js";
+import DataDashboard from "pages/DataDashboard";
+import Devices from "pages/Devices";
 
 import routes from "appRoutes";
 
@@ -20,6 +22,12 @@ const App = () => {
                 <Route path={routes[0].route} element={ <PrivateRoute>
                     <IotDashboard />
                   </PrivateRoute>} />
+                <Route path={routes[1].route} element={ <PrivateRoute>
+                    <DataDashboard />
+                </PrivateRoute>} />
+                <Route path={routes[2].route} element={ <PrivateRoute>
+                    <Devices />
+                </PrivateRoute>} />
             </Routes>
         </BrowserRouter>
     );
