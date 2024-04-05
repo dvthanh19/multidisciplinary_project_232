@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Stack, Chip, Box, Typography, Card } from "@mui/joy";
-import Surface from "../Surface";
+import Surface from "../DevicesPieSurface";
 
-const DeviceList = ({ name }) => {
+const DeviceList = ({ name, children }) => {
 
     return (
         <Stack spacing={6} direction="column">
@@ -20,8 +20,7 @@ const DeviceList = ({ name }) => {
                     flexWrap="nowrap"
                     sx={{ overflow: "auto" }}
                 >
-                    <Surface name="User Login Frequency" dataComponent={<Card>Embbed Bar Chart of Login frequency. To see at what hour the traffic is the most stressed</Card>}/>
-                    <Surface name="User Base " dataComponent={<Card>Embbed Textual info. To see how the system grow in User base.</Card>}/>
+                    {children}
                 </Stack>
             </Stack>
         </Stack>
