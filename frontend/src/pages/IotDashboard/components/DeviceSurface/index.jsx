@@ -1,11 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { Card, Stack, Typography, Box, IconButton, Chip } from "@mui/joy";
+import {
+    Card,
+    Stack,
+    Typography,
+    Box,
+    IconButton,
+    Chip,
+    Tooltip,
+    Dropdown,
+    MenuButton,
+    MenuItem,
+    Menu,
+} from "@mui/joy";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import InfoIcon from "@mui/icons-material/Info";
 import DeviceDetailModal from "../DetailDevice/DeviceDetailModal";
 import { Line } from "react-chartjs-2";
 import "chart.js/auto";
+import { FileDownload, FilterAlt } from "@mui/icons-material";
 
 const DeviceSurface = ({ id, deviceID, name, type, position }) => {
     const [deviceOn, setDeviceOn] = useState(true);
@@ -45,9 +58,35 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
                 data: logData.map((log) => log.value),
                 fill: false,
                 borderColor: "rgb(75, 192, 192)",
-                tension: 0.1,
+                tension: 0.4,
             },
         ],
+    };
+
+    const chartjs_config = {
+        type: "line",
+        data: data,
+        options: {
+            responsive: true,
+            interaction: {
+                intersect: false,
+            },
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                    },
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: "Value",
+                    },
+                },
+            },
+        },
     };
 
     return (
@@ -58,7 +97,6 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
             sx={{
                 minWidth: 400,
                 minHeight: 300,
-                maxHeight: 300,
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
@@ -108,8 +146,41 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
                         <InfoIcon />
                     </IconButton>
                 </Stack>
-                {/* Graph */}
-                <Line data={data} />
+                <Stack direction="column">
+                    <Stack direction="row">
+                        <Dropdown>
+                            <Tooltip title="Filter">
+                                <MenuButton slots={{ root: IconButton }}>
+                                    <FilterAlt />
+                                </MenuButton>
+                            </Tooltip>
+                            <Menu>
+                                <MenuItem>... by time range</MenuItem>
+                            </Menu>
+                        </Dropdown>
+                        <Dropdown>
+                            <Tooltip title="Export">
+                                <MenuButton slots={{ root: IconButton }}>
+                                    <FileDownload />
+                                </MenuButton>
+                            </Tooltip>
+                            <Menu>
+                                <MenuItem selected>... as CSV</MenuItem>
+                                <MenuItem>... as JSON</MenuItem>
+                            </Menu>
+                        </Dropdown>
+                    </Stack>
+                    <Card variant="soft" color="white">
+                        <Stack
+                            direction="row"
+                            alignItems="center"
+                            justifyContent="center"
+                        >
+                            {/* Graph */}
+                            <Line data={data} config={chartjs_config} />
+                        </Stack>
+                    </Card>
+                </Stack>
             </Stack>
             <DeviceDetailModal
                 open={openDetailModal}
