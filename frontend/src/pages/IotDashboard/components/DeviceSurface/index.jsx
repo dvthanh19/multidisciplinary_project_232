@@ -11,19 +11,32 @@ import {
     MenuButton,
     MenuItem,
     Menu,
+    Input,
+    FormLabel,
+    FormControl,
+    Slider,
 } from "@mui/joy";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import InfoIcon from "@mui/icons-material/Info";
 import DeviceDetailModal from "../DetailDevice/DeviceDetailModal";
 import { Line } from "react-chartjs-2";
-import "chart.js/auto";
-import { FileDownload, FilterAlt } from "@mui/icons-material";
+import "chart.js";
+import {
+    FileDownload,
+    FilterAlt,
+    DataObject,
+    Subject,
+} from "@mui/icons-material";
 
 const DeviceSurface = ({ id, deviceID, name, type, position }) => {
     const [deviceOn, setDeviceOn] = useState(true);
     const [openDetailModal, setOpenDetailModal] = useState(false);
     const [logData, setLogData] = useState([]);
+    const [filterFromDateValue, setFilterFromDateValue] = useState("");
+    const [filterToDateValue, setFilterToDateValue] = useState("");
+    const [validDateRange, setValidDateRange] = useState(true);
+    const [fetchLimit, setFetchLimit] = useState(10);
     const ADAFRUIT_IO_USERNAME = "1zy";
     const ADAFRUIT_IO_KEY = "aio_HQHl865UcZU9BnFNjemUKCfwh7Vx";
 
@@ -33,60 +46,50 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
 
     useEffect(() => {
         const fetchLogData = async () => {
-            const response = await fetch(
-                `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/${deviceID}/data`,
-                {
-                    headers: {
-                        "X-AIO-Key": ADAFRUIT_IO_KEY,
-                    },
-                }
-            );
-            const data = await response.json();
-            setLogData(data);
+            const start_time = filterFromDateValue;
+            const end_time = filterToDateValue;
+
+            if (
+                start_time == "" ||
+                end_time == "" ||
+                new Date(start_time) < new Date(end_time)
+            ) {
+                setValidDateRange(true);
+
+                const response = await fetch(
+                    `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/${deviceID}/data?start_time=${start_time}&end_time=${end_time}&limit=${fetchLimit}`,
+                    {
+                        headers: {
+                            "X-AIO-Key": ADAFRUIT_IO_KEY,
+                        },
+                    }
+                );
+                const data = await response.json();
+                setLogData(data);
+            } else {
+                setValidDateRange(false);
+            }
         };
 
         fetchLogData();
-    }, [name]);
+    }, [name, filterFromDateValue, filterToDateValue, fetchLimit]);
 
+    {
+        /* Reverse the list because AdaFruit returns time stamps from oldest to newest */
+    }
     const data = {
-        labels: logData.map((log) =>
-            new Date(log.created_at).toLocaleTimeString()
-        ),
+        labels: logData
+            .reverse()
+            .map((log) => new Date(log.created_at).toLocaleTimeString()),
         datasets: [
             {
                 label: "Value",
-                data: logData.map((log) => log.value),
-                fill: false,
+                data: logData.reverse().map((log) => log.value),
+                fill: "start",
                 borderColor: "rgb(75, 192, 192)",
                 tension: 0.4,
             },
         ],
-    };
-
-    const chartjs_config = {
-        type: "line",
-        data: data,
-        options: {
-            responsive: true,
-            interaction: {
-                intersect: false,
-            },
-            scales: {
-                x: {
-                    display: true,
-                    title: {
-                        display: true,
-                    },
-                },
-                y: {
-                    display: true,
-                    title: {
-                        display: true,
-                        text: "Value",
-                    },
-                },
-            },
-        },
     };
 
     return (
@@ -148,6 +151,7 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
                 </Stack>
                 <Stack direction="column">
                     <Stack direction="row">
+                        {/* This block is for Date Range Filter logic */}
                         <Dropdown>
                             <Tooltip title="Filter">
                                 <MenuButton slots={{ root: IconButton }}>
@@ -155,7 +159,120 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
                                 </MenuButton>
                             </Tooltip>
                             <Menu>
-                                <MenuItem>... by time range</MenuItem>
+                                <Box sx={{ m: 2 }}>
+                                    <Stack direction="column" spacing={2}>
+                                        <Typography level="title-sm">
+                                            <Typography
+                                                variant="outlined"
+                                                color="success"
+                                            >
+                                                Filter
+                                            </Typography>{" "}
+                                            by date range
+                                        </Typography>
+
+                                        {!validDateRange ? (
+                                            <Typography
+                                                color="danger"
+                                                level="body-sm"
+                                            >
+                                                Invalid date range. Please try
+                                                again.
+                                            </Typography>
+                                        ) : (
+                                            <></>
+                                        )}
+
+                                        <Stack direction="row" spacing={1}>
+                                            <Stack
+                                                direction="column"
+                                                spacing={0}
+                                            >
+                                                <Typography level="body-sx">
+                                                    From...
+                                                </Typography>
+                                                <Input
+                                                    type="date"
+                                                    value={
+                                                        filterFromDateValue
+                                                            ? new Date(
+                                                                  filterFromDateValue
+                                                              )
+                                                                  .toISOString()
+                                                                  .slice(0, 10)
+                                                            : ""
+                                                    }
+                                                    onChange={(e) => {
+                                                        setFilterFromDateValue(
+                                                            new Date(
+                                                                e.target.value
+                                                            ).toISOString()
+                                                        );
+                                                    }}
+                                                />
+                                            </Stack>
+                                            <Stack
+                                                direction="column"
+                                                spacing={0}
+                                            >
+                                                <Typography level="body-sx">
+                                                    To...
+                                                </Typography>
+                                                <Input
+                                                    type="date"
+                                                    value={
+                                                        filterToDateValue
+                                                            ? new Date(
+                                                                  filterToDateValue
+                                                              )
+                                                                  .toISOString()
+                                                                  .slice(0, 10)
+                                                            : ""
+                                                    }
+                                                    onChange={(e) => {
+                                                        setFilterToDateValue(
+                                                            new Date(
+                                                                e.target.value
+                                                            ).toISOString()
+                                                        );
+                                                    }}
+                                                />
+                                            </Stack>
+                                        </Stack>
+
+                                        <Stack>
+                                            <Typography level="body-sx">
+                                                Limit of data points
+                                            </Typography>
+                                            <Stack
+                                                direction="row"
+                                                alignItems="center"
+                                                justifyContent="space-between"
+                                                spacing={2}
+                                            >
+                                                <Typography level="body-sx">
+                                                    10
+                                                </Typography>
+                                                <Slider
+                                                    defaultValue={fetchLimit}
+                                                    step={1}
+                                                    marks
+                                                    min={10}
+                                                    max={30}
+                                                    valueLabelDisplay="auto"
+                                                    onChange={(e) =>
+                                                        setFetchLimit(
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                />
+                                                <Typography level="body-sx">
+                                                    30
+                                                </Typography>
+                                            </Stack>
+                                        </Stack>
+                                    </Stack>
+                                </Box>
                             </Menu>
                         </Dropdown>
                         <Dropdown>
@@ -165,19 +282,39 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
                                 </MenuButton>
                             </Tooltip>
                             <Menu>
-                                <MenuItem selected>... as CSV</MenuItem>
-                                <MenuItem>... as JSON</MenuItem>
+                                <MenuItem>
+                                    Export as CSV <Subject />
+                                </MenuItem>
+                                <MenuItem>
+                                    Export as JSON <DataObject />
+                                </MenuItem>
                             </Menu>
                         </Dropdown>
                     </Stack>
                     <Card variant="soft" color="white">
-                        <Stack
-                            direction="row"
-                            alignItems="center"
-                            justifyContent="center"
-                        >
-                            {/* Graph */}
-                            <Line data={data} config={chartjs_config} />
+                        <Stack direction="column">
+                            <Stack
+                                direction="row"
+                                alignItems="center"
+                                justifyContent="center"
+                            >
+                                {/* Graph */}
+                                <Line data={data} />
+                            </Stack>
+                            {filterFromDateValue != "" &&
+                            filterToDateValue != "" ? (
+                                <Typography textAlign="center">
+                                    {new Date(
+                                        filterFromDateValue
+                                    ).toLocaleDateString()}{" "}
+                                    -{" "}
+                                    {new Date(
+                                        filterToDateValue
+                                    ).toLocaleDateString()}
+                                </Typography>
+                            ) : (
+                                <></>
+                            )}
                         </Stack>
                     </Card>
                 </Stack>
