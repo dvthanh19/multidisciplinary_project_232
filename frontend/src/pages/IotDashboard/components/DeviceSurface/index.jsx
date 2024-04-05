@@ -29,6 +29,9 @@ import {
     Subject,
 } from "@mui/icons-material";
 
+import exportJSON from "pages/IotDashboard/utils/exportJSON";
+import exportCSV from "pages/IotDashboard/utils/exportCSV";
+
 const DeviceSurface = ({ id, deviceID, name, type, position }) => {
     const [deviceOn, setDeviceOn] = useState(true);
     const [openDetailModal, setOpenDetailModal] = useState(false);
@@ -276,16 +279,17 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
                             </Menu>
                         </Dropdown>
                         <Dropdown>
+                             {/* Download (Export) from the frontend */}
                             <Tooltip title="Export">
                                 <MenuButton slots={{ root: IconButton }}>
                                     <FileDownload />
                                 </MenuButton>
                             </Tooltip>
                             <Menu>
-                                <MenuItem>
+                                <MenuItem onClick={() => exportCSV(logData)}>
                                     Export as CSV <Subject />
                                 </MenuItem>
-                                <MenuItem>
+                                <MenuItem onClick={() => exportJSON(logData)}>
                                     Export as JSON <DataObject />
                                 </MenuItem>
                             </Menu>
