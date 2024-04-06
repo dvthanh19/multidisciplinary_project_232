@@ -6,6 +6,7 @@ import { Doughnut } from "react-chartjs-2";
 import exportCSV from "utils/exportCSV";
 import exportJSON from "utils/exportJSON";
 import 'chartjs-plugin-datalabels'; 
+import 'chart.js/auto'
 
 const DevicesPieSurface = () => {
     const [logData, setLogData] = useState([]);
