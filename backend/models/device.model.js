@@ -26,6 +26,10 @@ const deviceSchema = new mongoose.Schema({
             type: Date, 
             required: false 
         }
+    },
+    schedule: {
+        type: Object,
+        required: false
     }
  });
 

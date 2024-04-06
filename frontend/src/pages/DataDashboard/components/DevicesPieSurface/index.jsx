@@ -1,124 +1,163 @@
 import React, { useState, useEffect } from "react";
-import {
-    Card,
-    Stack,
-    Typography,
-    Box,
-    IconButton,
-    Chip,
-    Tooltip,
-    Dropdown,
-    MenuButton,
-    Menu,
-    MenuItem,
-} from "@mui/joy";
-
+import { Card, Stack, Typography, Box, IconButton, Tooltip, Dropdown, MenuButton, Menu, MenuItem } from "@mui/joy";
 import axios from "axios";
-
 import { Subject, DataObject, FileDownload } from "@mui/icons-material";
-
-import "chart.js/auto";
-
+import { Doughnut } from "react-chartjs-2";
 import exportCSV from "utils/exportCSV";
 import exportJSON from "utils/exportJSON";
-import { Doughnut } from "react-chartjs-2";
+import 'chartjs-plugin-datalabels'; 
 
 const DevicesPieSurface = () => {
-    const [logData, setLogData] = useState();
+    const [logData, setLogData] = useState([]);
+    const [deviceChartData, setDeviceChartData] = useState({
+        labels: [],
+        datasets: [{
+            label: 'Device Types',
+            data: [],
+            backgroundColor: ['rgb(255, 99, 132)', 'rgb(54, 162, 235)', 'rgb(255, 205, 86)'],
+            hoverOffset: 4,
+        }],
+    });
+    const [sensorChartData, setSensorChartData] = useState({
+        labels: [],
+        datasets: [{
+            label: 'Sensor Types',
+            data: [],
+            
+            backgroundColor: ['rgb(75, 192, 192)', 'rgb(153, 102, 255)', 'rgb(255, 159, 64)'],
+            hoverOffset: 4,
+        }],
+    });
+    const chartOptions = {
+        plugins: {
+            datalabels: {
+                display: true,
+                color: 'white',
+                formatter: (value, context) => {
+                    // Hiển thị giá trị trực tiếp trên chart
+                    return context.chart.data.labels[context.dataIndex] + `\n (${value})`;
+                },
+            },
+        },
+    };
     const authToken = localStorage.getItem("authToken");
 
     useEffect(() => {
         const fetchAllDevices = async () => {
-            try {
-                const response = await axios.get(
-                    "http://localhost:3000/api/device/",
-                    {
-                        headers: {
-                            Authorization: `Bearer ${authToken}`,
-                        },
-                    }
-                );
-
-                const data = await response.data;
-                setLogData(data);
-            } catch (error) {
-                console.error("Failed to fetch user data:", error);
+            if (authToken) {
+                try {
+                    const response = await axios.get("http://localhost:3000/api/device/", {
+                        headers: { Authorization: `Bearer ${authToken}` },
+                    });
+                    const devices = response.data.device || [];
+                    setLogData(devices);
+                } catch (error) {
+                    console.error("Failed to fetch device data:", error);
+                }
             }
         };
+        fetchAllDevices();
+    }, [authToken]);
 
-        if (authToken) {
-            fetchAllDevices();
+    useEffect(() => {
+        if (logData.length > 0) {
+            const deviceData = logData.filter(device => device.type === "Device");
+            const sensorData = logData.filter(device => device.type === "Sensor");
+        
+
+
+            const deviceCounts = deviceData.reduce((acc, device) => {
+                acc[device.name] = (acc[device.name] || 0) + 1;
+                return acc;
+            }, {});
+
+            const sensorCounts = sensorData.reduce((acc, sensor) => {
+                acc[sensor.name] = (acc[sensor.name] || 0) + 1;
+                return acc;
+            }, {});
+
+            setDeviceChartData({
+                labels: Object.keys(deviceCounts),
+                datasets: [{
+                    label: 'Device Types',
+                    data: Object.values(deviceCounts),
+                    backgroundColor: ['rgb(255, 99, 132)', 'rgb(54, 162, 235)', 'rgb(255, 205, 86)'],
+                    hoverOffset: 4,
+                }],
+            });
+
+            setSensorChartData({
+                labels: Object.keys(sensorCounts),
+                datasets: [{
+                    label: 'Sensor Types',
+                    data: Object.values(sensorCounts),
+                    backgroundColor: ['rgb(75, 192, 192)', 'rgb(153, 102, 255)', 'rgb(255, 159, 64)'],
+                    hoverOffset: 4,
+                }],
+            });
         }
-    }, []);
-
-    console.log(logData);
-
-    const data = {
-        labels: ["Red", "Blue", "Yellow"],
-        datasets: [
-            {
-                label: "My First Dataset",
-                data: [300, 50, 100],
-                backgroundColor: [
-                    "rgb(255, 99, 132)",
-                    "rgb(54, 162, 235)",
-                    "rgb(255, 205, 86)",
-                ],
-                hoverOffset: 4,
-            },
-        ],
-    };
+    }, [logData]);
 
     return (
-        <Card
-            size="lg"
-            variant="soft"
-            color="primary"
-            sx={{
-                minWidth: 400,
-                minHeight: 300,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-            }}
-        >
-            <Stack direction="column" spacing={4}>
-                <Stack
-                    direction="row"
-                    spacing={2}
-                    alignItems="flex-start"
-                    justifyContent="space-between"
-                >
-                    <Box maxWidth={300}>
-                        <Typography level="h3" noWrap>
-                            Devices Type
-                        </Typography>
-                    </Box>
-                </Stack>
-                <Stack>
-                    <Stack direction="row">
-                        <Dropdown>
-                            {/* Download (Export) from the frontend */}
-                            <Tooltip title="Export">
-                                <MenuButton slots={{ root: IconButton }}>
-                                    <FileDownload />
-                                </MenuButton>
-                            </Tooltip>
-                            <Menu>
-                                <MenuItem onClick={() => exportCSV(logData)}>
-                                    Export as CSV <Subject />
-                                </MenuItem>
-                                <MenuItem onClick={() => exportJSON(logData)}>
-                                    Export as JSON <DataObject />
-                                </MenuItem>
-                            </Menu>
-                        </Dropdown>
-                    </Stack>
+        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, justifyContent: 'center' }}>
+            {/* Card cho Device Types */}
+            <Card
+                size="lg"
+                variant="soft"
+                color="primary"
+                sx={{
+                    minWidth: 400,
+                    minHeight: 300,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                }}
+            >
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 2 }}>
+                    <Typography level="h3" noWrap>
+                        Device Types
+                    </Typography>
+                    <Tooltip title="Export">
+                        <IconButton onClick={() => exportCSV(logData.filter(device => device.type === "Device"),"Device_data.csv")}>
+                            <FileDownload />
+                        </IconButton>
+                        {/* <IconButton onClick={() => exportJSON(logData.filter(device => device.type === "Device"),"Device_data.json")}>
+                            <FileDownload />
+                        </IconButton> */}
+                    </Tooltip>
+                </Box>
+                {deviceChartData.datasets[0].data.length > 0 && <Doughnut data={deviceChartData} />}
+            </Card>
 
-                    <Doughnut data={data} />
-                </Stack>
-            </Stack>
-        </Card>
+            {/* Card cho Sensor Types */}
+            <Card
+                size="lg"
+                variant="soft"
+                color="primary"
+                sx={{
+                    minWidth: 400,
+                    minHeight: 300,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                }}
+            >
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 2 }}>
+                    <Typography level="h3" noWrap>
+                        Sensor Types
+                    </Typography>
+                    <Tooltip title="Export">
+                        <IconButton onClick={() => exportCSV(logData.filter(device => device.type === "Sensor"),"Sensor_data.csv")}>
+                            <FileDownload />
+                        </IconButton>
+                        {/* <IconButton onClick={() => exportJSON(logData.filter(device => device.type === "Sensor"),"Sensor_data.json")}>
+                            <FileDownload />
+                        </IconButton> */}
+                    </Tooltip>
+                </Box>
+                {sensorChartData.datasets[0].data.length > 0 && <Doughnut data={sensorChartData} />}
+            </Card>
+        </Box>
     );
 };
 
