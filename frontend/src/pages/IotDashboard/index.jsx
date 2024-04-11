@@ -6,7 +6,8 @@ const IotDashboard = () => {
     return (
         console.log("IotDashboard"),
         <PageLayout focusOnRouteID={"home"}>
-            <DeviceList />
+            <DeviceList type="Device"/>
+            <DeviceList type="Sensor"/>
             <Card></Card>
             <Card></Card>
             <Card></Card>

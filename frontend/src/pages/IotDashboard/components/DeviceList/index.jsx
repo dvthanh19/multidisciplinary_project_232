@@ -5,12 +5,11 @@ import DoneIcon from "@mui/icons-material/Done";
 import SensorsOffIcon from "@mui/icons-material/SensorsOff";
 import DeviceSurface from "../DeviceSurface";
 
-const DeviceList = () => {
+const DeviceList = ({type}) => {
+    // deviceType can be {"Device", "Sensor", ...}
     const [devices, setDevices] = useState([]);
     const [numberOfDevice, setNumberOfDevices] = useState(0);
-    const [numberOfSensor, setNumberOfSensors] = useState(0);
     const [activeDevices, setActiveDevices] = useState(0);
-    const [activeSensors, setActiveSensors] = useState(0);
 
     useEffect(() => {
         const fetchDevices = async () => {
@@ -22,22 +21,12 @@ const DeviceList = () => {
                 // Assuming active is determined by curValue presence
                 setActiveDevices(
                     response.data.device.filter(
-                        (device) => device.curValue && device.type === "Device"
+                        (device) => device.curValue && device.type === type
                     ).length
                 );
                 setNumberOfDevices(
                     response.data.device.filter(
-                        (device) => device.type === "Device"
-                    ).length
-                );
-                setNumberOfSensors(
-                    response.data.device.filter(
-                        (device) => device.type === "Sensor"
-                    ).length
-                );
-                setActiveSensors(
-                    response.data.device.filter(
-                        (device) => device.curValue && device.type === "Sensor"
+                        (device) => device.type === type
                     ).length
                 );
             } catch (error) {
@@ -65,46 +54,6 @@ const DeviceList = () => {
                         color="success"
                         startDecorator={<DoneIcon />}
                     >
-                        Active {activeSensors}
-                    </Chip>
-                    <Chip
-                        variant="outlined"
-                        color="danger"
-                        startDecorator={<SensorsOffIcon />}
-                    >
-                        Unactive {numberOfSensor - activeSensors}
-                    </Chip>
-                </Stack>
-                <Stack
-                    spacing={2}
-                    direction="row"
-                    flexWrap="nowrap"
-                    sx={{ overflow: "auto" }}
-                >
-                    {devices
-                        .filter((device) => device.type === "Sensor")
-                        .map((device) => (
-                            <DeviceSurface
-                                id={device._id}
-                                deviceID={device.deviceID}
-                                name={device.name}
-                                type={device.type}
-                                position={device.position}
-                            />
-                        ))}
-                </Stack>
-            </Stack>
-
-            <Stack spacing={1} direction="column">
-                <Stack spacing={1} direction="row">
-                    <Typography sx={{ color: "neutral.500" }}>
-                        Available devices
-                    </Typography>
-                    <Chip
-                        variant="outlined"
-                        color="success"
-                        startDecorator={<DoneIcon />}
-                    >
                         Active {activeDevices}
                     </Chip>
                     <Chip
@@ -122,7 +71,7 @@ const DeviceList = () => {
                     sx={{ overflow: "auto" }}
                 >
                     {devices
-                        .filter((device) => device.type === "Device")
+                        .filter((device) => device.type === type)
                         .map((device) => (
                             <DeviceSurface
                                 id={device._id}
