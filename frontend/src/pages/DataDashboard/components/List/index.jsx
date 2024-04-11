@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Stack, Chip, Box, Typography, Card } from "@mui/joy";
-import Surface from "../DevicesPieSurface";
+import Surface from "../DevicesPieSurface/DevicesPieSurface";
 
 const DeviceList = ({ name, children }) => {
 

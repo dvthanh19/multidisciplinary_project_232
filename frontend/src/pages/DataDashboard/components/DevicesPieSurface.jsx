@@ -106,8 +106,6 @@ const DevicesPieSurface = () => {
                 size="lg"
                 color="primary"
                 sx={{
-                    minWidth: 400,
-                    minHeight: 300,
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "space-between",
@@ -134,8 +132,6 @@ const DevicesPieSurface = () => {
                 size="lg"
                 color="primary"
                 sx={{
-                    minWidth: 400,
-                    minHeight: 300,
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "space-between",
