@@ -104,7 +104,6 @@ const DevicesPieSurface = () => {
             {/* Card cho Device Types */}
             <Card
                 size="lg"
-                variant="soft"
                 color="primary"
                 sx={{
                     minWidth: 400,
@@ -133,7 +132,6 @@ const DevicesPieSurface = () => {
             {/* Card cho Sensor Types */}
             <Card
                 size="lg"
-                variant="soft"
                 color="primary"
                 sx={{
                     minWidth: 400,

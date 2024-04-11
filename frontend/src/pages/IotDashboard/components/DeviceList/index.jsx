@@ -102,26 +102,24 @@ const DeviceList = ({ type }) => {
                 </Stack>
 
                 {Object.keys(itemGroups).length > 0 ? (
-                    <Fade in={true} timeout={1000}>
-                        <Stack
-                            spacing={2}
-                            direction="row"
-                            flexWrap="nowrap"
-                            sx={{ overflow: "auto" }}
-                        >
-                            {itemGroups[page - 1]
-                                .filter((device) => device.type === type)
-                                .map((device, idx) => (
-                                    <DeviceSurface
-                                        id={device._id}
-                                        deviceID={device.deviceID}
-                                        name={device.name}
-                                        type={device.type}
-                                        position={device.position}
-                                    />
-                                ))}
-                        </Stack>
-                    </Fade>
+                    <Stack
+                        spacing={2}
+                        direction="row"
+                        flexWrap="nowrap"
+                        sx={{ overflow: "auto" }}
+                    >
+                        {itemGroups[page - 1]
+                            .filter((device) => device.type === type)
+                            .map((device, idx) => (
+                                <DeviceSurface
+                                    id={device._id}
+                                    deviceID={device.deviceID}
+                                    name={device.name}
+                                    type={device.type}
+                                    position={device.position}
+                                />
+                            ))}
+                    </Stack>
                 ) : (
                     <LoadingList />
                 )}

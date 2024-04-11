@@ -98,7 +98,6 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
     return (
         <Card
             size="lg"
-            variant="soft"
             color={deviceOn ? "primary" : "success"}
             sx={{
                 minWidth: 400,
