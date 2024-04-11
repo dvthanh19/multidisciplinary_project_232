@@ -6,26 +6,19 @@
 
 import SpaceDashboardIcon from "@mui/icons-material/SpaceDashboard";
 import RouterIcon from "@mui/icons-material/Router";
-import InsightsIcon from '@mui/icons-material/Insights';
 
 const routes = [
     {
-        name: "Home",
-        key: "home",
-        icon: <SpaceDashboardIcon />,
-        route: "/home",
-    },
-    {
         name: "Data Dashboard",
         key: "datadashboard",
-        icon: <InsightsIcon />,
-        route: "/data",
+        icon: <SpaceDashboardIcon />,
+        route: "/datadashboard",
     },
     {
-        name: "Devices",
-        key: "devices",
+        name: "Iot Dashboard",
+        key: "iotdashboard",
         icon: <RouterIcon />,
-        route: "/devices",
+        route: "/iotdashboard",
     },
     // {
     //   type: "collapse",

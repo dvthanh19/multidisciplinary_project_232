@@ -5,7 +5,7 @@ import { Card } from "@mui/joy";
 const IotDashboard = () => {
     return (
         console.log("IotDashboard"),
-        <PageLayout focusOnRouteID={"home"}>
+        <PageLayout focusOnRouteID={"iotdashboard"}>
             <DeviceList type="Device"/>
             <DeviceList type="Sensor"/>
             <Card></Card>

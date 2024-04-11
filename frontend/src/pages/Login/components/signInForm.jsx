@@ -45,7 +45,7 @@ const SignInForm = ({ setLogin }) => {
 
             dispatch(setUser({ userData: data.userData }));
             localStorage.setItem("authToken", data.token);
-            navigate("/home");
+            navigate("/datadashboard");
         } catch (error) {
             alert(error.message);
         }
