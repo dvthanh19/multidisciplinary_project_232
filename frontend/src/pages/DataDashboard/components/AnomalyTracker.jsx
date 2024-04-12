@@ -2,7 +2,7 @@ import { Typography, Grid, Stack, Card, Box } from "@mui/joy";
 
 import TimerIcon from "@mui/icons-material/Timer";
 import { Line, Bar, Pie, Radar, Doughnut } from "react-chartjs-2";
-
+import "chart.js/auto";
 
 const CostTrend = () => {
     const data = {

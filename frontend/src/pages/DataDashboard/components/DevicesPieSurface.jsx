@@ -1,42 +1,68 @@
 import React, { useState, useEffect } from "react";
-import { Card, Stack, Typography, Box, IconButton, Tooltip, Dropdown, MenuButton, Menu, MenuItem } from "@mui/joy";
+import {
+    Card,
+    Stack,
+    Typography,
+    Box,
+    IconButton,
+    Tooltip,
+    Dropdown,
+    MenuButton,
+    Menu,
+    MenuItem,
+} from "@mui/joy";
 import axios from "axios";
 import { Subject, DataObject, FileDownload } from "@mui/icons-material";
 import { Doughnut } from "react-chartjs-2";
 import exportCSV from "utils/exportCSV";
 import exportJSON from "utils/exportJSON";
-import 'chartjs-plugin-datalabels'; 
-import 'chart.js/auto'
+import "chartjs-plugin-datalabels";
+import "chart.js/auto";
 
 const DevicesPieSurface = () => {
     const [logData, setLogData] = useState([]);
     const [deviceChartData, setDeviceChartData] = useState({
         labels: [],
-        datasets: [{
-            label: 'Device Types',
-            data: [],
-            backgroundColor: ['rgb(255, 99, 132)', 'rgb(54, 162, 235)', 'rgb(255, 205, 86)'],
-            hoverOffset: 4,
-        }],
+        datasets: [
+            {
+                label: "Device Types",
+                data: [],
+                backgroundColor: [
+                    "rgb(255, 99, 132)",
+                    "rgb(54, 162, 235)",
+                    "rgb(255, 205, 86)",
+                ],
+                hoverOffset: 4,
+            },
+        ],
     });
     const [sensorChartData, setSensorChartData] = useState({
         labels: [],
-        datasets: [{
-            label: 'Sensor Types',
-            data: [],
-            
-            backgroundColor: ['rgb(75, 192, 192)', 'rgb(153, 102, 255)', 'rgb(255, 159, 64)'],
-            hoverOffset: 4,
-        }],
+        datasets: [
+            {
+                label: "Sensor Types",
+                data: [],
+
+                backgroundColor: [
+                    "rgb(75, 192, 192)",
+                    "rgb(153, 102, 255)",
+                    "rgb(255, 159, 64)",
+                ],
+                hoverOffset: 4,
+            },
+        ],
     });
     const chartOptions = {
         plugins: {
             datalabels: {
                 display: true,
-                color: 'white',
+                color: "white",
                 formatter: (value, context) => {
                     // Hiển thị giá trị trực tiếp trên chart
-                    return context.chart.data.labels[context.dataIndex] + `\n (${value})`;
+                    return (
+                        context.chart.data.labels[context.dataIndex] +
+                        `\n (${value})`
+                    );
                 },
             },
         },
@@ -47,9 +73,12 @@ const DevicesPieSurface = () => {
         const fetchAllDevices = async () => {
             if (authToken) {
                 try {
-                    const response = await axios.get("http://localhost:3000/api/device/", {
-                        headers: { Authorization: `Bearer ${authToken}` },
-                    });
+                    const response = await axios.get(
+                        "http://localhost:3000/api/device/",
+                        {
+                            headers: { Authorization: `Bearer ${authToken}` },
+                        }
+                    );
                     const devices = response.data.device || [];
                     setLogData(devices);
                 } catch (error) {
@@ -62,10 +91,12 @@ const DevicesPieSurface = () => {
 
     useEffect(() => {
         if (logData.length > 0) {
-            const deviceData = logData.filter(device => device.type === "Device");
-            const sensorData = logData.filter(device => device.type === "Sensor");
-        
-
+            const deviceData = logData.filter(
+                (device) => device.type === "Device"
+            );
+            const sensorData = logData.filter(
+                (device) => device.type === "Sensor"
+            );
 
             const deviceCounts = deviceData.reduce((acc, device) => {
                 acc[device.name] = (acc[device.name] || 0) + 1;
@@ -79,28 +110,47 @@ const DevicesPieSurface = () => {
 
             setDeviceChartData({
                 labels: Object.keys(deviceCounts),
-                datasets: [{
-                    label: 'Device Types',
-                    data: Object.values(deviceCounts),
-                    backgroundColor: ['rgb(255, 99, 132)', 'rgb(54, 162, 235)', 'rgb(255, 205, 86)'],
-                    hoverOffset: 4,
-                }],
+                datasets: [
+                    {
+                        label: "Device Types",
+                        data: Object.values(deviceCounts),
+                        backgroundColor: [
+                            "rgb(255, 99, 132)",
+                            "rgb(54, 162, 235)",
+                            "rgb(255, 205, 86)",
+                        ],
+                        hoverOffset: 4,
+                    },
+                ],
             });
 
             setSensorChartData({
                 labels: Object.keys(sensorCounts),
-                datasets: [{
-                    label: 'Sensor Types',
-                    data: Object.values(sensorCounts),
-                    backgroundColor: ['rgb(75, 192, 192)', 'rgb(153, 102, 255)', 'rgb(255, 159, 64)'],
-                    hoverOffset: 4,
-                }],
+                datasets: [
+                    {
+                        label: "Sensor Types",
+                        data: Object.values(sensorCounts),
+                        backgroundColor: [
+                            "rgb(75, 192, 192)",
+                            "rgb(153, 102, 255)",
+                            "rgb(255, 159, 64)",
+                        ],
+                        hoverOffset: 4,
+                    },
+                ],
             });
         }
     }, [logData]);
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, justifyContent: 'center' }}>
+        <Box
+            sx={{
+                display: "flex",
+                flexDirection: "row",
+                gap: 2,
+                justifyContent: "center",
+            }}
+        >
             {/* Card cho Device Types */}
             <Card
                 size="lg"
@@ -111,12 +161,28 @@ const DevicesPieSurface = () => {
                     justifyContent: "space-between",
                 }}
             >
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 2 }}>
+                <Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: 2,
+                    }}
+                >
                     <Typography level="h3" noWrap>
                         Device Types
                     </Typography>
                     <Tooltip title="Export">
-                        <IconButton onClick={() => exportCSV(logData.filter(device => device.type === "Device"),"Device_data.csv")}>
+                        <IconButton
+                            onClick={() =>
+                                exportCSV(
+                                    logData.filter(
+                                        (device) => device.type === "Device"
+                                    ),
+                                    "Device_data.csv"
+                                )
+                            }
+                        >
                             <FileDownload />
                         </IconButton>
                         {/* <IconButton onClick={() => exportJSON(logData.filter(device => device.type === "Device"),"Device_data.json")}>
@@ -124,7 +190,9 @@ const DevicesPieSurface = () => {
                         </IconButton> */}
                     </Tooltip>
                 </Box>
-                {deviceChartData.datasets[0].data.length > 0 && <Doughnut data={deviceChartData} />}
+                {deviceChartData.datasets[0].data.length > 0 && (
+                    <Doughnut data={deviceChartData} />
+                )}
             </Card>
 
             {/* Card cho Sensor Types */}
@@ -137,12 +205,28 @@ const DevicesPieSurface = () => {
                     justifyContent: "space-between",
                 }}
             >
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 2 }}>
+                <Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: 2,
+                    }}
+                >
                     <Typography level="h3" noWrap>
                         Sensor Types
                     </Typography>
                     <Tooltip title="Export">
-                        <IconButton onClick={() => exportCSV(logData.filter(device => device.type === "Sensor"),"Sensor_data.csv")}>
+                        <IconButton
+                            onClick={() =>
+                                exportCSV(
+                                    logData.filter(
+                                        (device) => device.type === "Sensor"
+                                    ),
+                                    "Sensor_data.csv"
+                                )
+                            }
+                        >
                             <FileDownload />
                         </IconButton>
                         {/* <IconButton onClick={() => exportJSON(logData.filter(device => device.type === "Sensor"),"Sensor_data.json")}>
@@ -150,7 +234,9 @@ const DevicesPieSurface = () => {
                         </IconButton> */}
                     </Tooltip>
                 </Box>
-                {sensorChartData.datasets[0].data.length > 0 && <Doughnut data={sensorChartData} />}
+                {sensorChartData.datasets[0].data.length > 0 && (
+                    <Doughnut data={sensorChartData} />
+                )}
             </Card>
         </Box>
     );

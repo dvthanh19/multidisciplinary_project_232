@@ -2,6 +2,7 @@ import { Typography, Grid, Stack, Card, Box } from "@mui/joy";
 
 import QueryStatsIcon from "@mui/icons-material/QueryStats";
 import { Line, Bar, Pie, Radar, Doughnut } from "react-chartjs-2";
+import "chart.js/auto";
 
 const EneryConsumptionTrend = () => {
     const dataHourly = {
