@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
     Card,
     Stack,
@@ -18,8 +18,7 @@ import {
 } from "@mui/joy";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
-import InfoIcon from "@mui/icons-material/Info";
-import DeviceDetailModal from "../DetailDevice/DeviceDetailModal";
+import SettingsIcon from "@mui/icons-material/Settings";
 import { Line } from "react-chartjs-2";
 import "chart.js";
 import {
@@ -32,9 +31,11 @@ import {
 import exportJSON from "utils/exportJSON";
 import exportCSV from "utils/exportCSV";
 
+import DeviceSettingsModalContext from "../../contexts/DeviceSettings";
+
 const DeviceSurface = ({ id, deviceID, name, type, position }) => {
     const [deviceOn, setDeviceOn] = useState(true);
-    const [openDetailModal, setOpenDetailModal] = useState(false);
+    const setOpenDetailModal = useContext(DeviceSettingsModalContext);
     const [logData, setLogData] = useState([]);
     const [filterFromDateValue, setFilterFromDateValue] = useState("");
     const [filterToDateValue, setFilterToDateValue] = useState("");
@@ -42,10 +43,6 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
     const [fetchLimit, setFetchLimit] = useState(10);
     const ADAFRUIT_IO_USERNAME = "1zy";
     const ADAFRUIT_IO_KEY = "aio_HQHl865UcZU9BnFNjemUKCfwh7Vx";
-
-    const handleOpenDetailModal = () => {
-        setOpenDetailModal(true);
-    };
 
     useEffect(() => {
         const fetchLogData = async () => {
@@ -146,9 +143,9 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
                         size="lg"
                         variant="solid"
                         color="primary"
-                        onClick={handleOpenDetailModal}
+                        onClick={() => setOpenDetailModal({deviceID: id})}
                     >
-                        <InfoIcon />
+                        <SettingsIcon />
                     </IconButton>
                 </Stack>
                 <Stack direction="column">
@@ -322,11 +319,6 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
                     </Card>
                 </Stack>
             </Stack>
-            <DeviceDetailModal
-                open={openDetailModal}
-                onClose={() => setOpenDetailModal(false)}
-                deviceId={id}
-            />
         </Card>
     );
 };

@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import axios from "axios";
 import { Stack, Chip, Box, Typography, CircularProgress, Grid } from "@mui/joy";
 import { Pagination, Fade } from "@mui/material";
 import DoneIcon from "@mui/icons-material/Done";
 import SensorsOffIcon from "@mui/icons-material/SensorsOff";
 import DeviceSurface from "../DeviceSurface";
+import DeviceDetailModal from "../DetailDevice/DeviceDetailModal";
+
+import DeviceSettingsModalContext from "../../contexts/DeviceSettings";
 
 const devicesPerPage = 2;
 
@@ -44,13 +47,13 @@ const LoadingList = () => {
 };
 
 const DeviceList = ({ type }) => {
-    // deviceType can be {"Device", "Sensor", ...}
+    // type can be {"Device", "Sensor", ...}
     const [devices, setDevices] = useState([]);
     const [numberOfDevice, setNumberOfDevices] = useState(0);
     const [itemGroups, setItemGroups] = useState({});
     const [activeDevices, setActiveDevices] = useState(0);
     const [page, setPage] = useState(1);
-    const [triggerFadeAnimation, setFadeAnimation] = useState(true);
+    const [showDeviceSettings, setShowDeviceSettings] = useState({});
 
     useEffect(() => {
         const fetchDevices = async () => {
@@ -101,39 +104,59 @@ const DeviceList = ({ type }) => {
                     </Chip>
                 </Stack>
 
-                {Object.keys(itemGroups).length > 0 ? (
-                    <Stack
-                        spacing={2}
-                        direction="row"
-                        flexWrap="nowrap"
-                        sx={{ overflow: "auto" }}
-                    >
-                        {itemGroups[page - 1]
-                            .filter((device) => device.type === type)
-                            .map((device, idx) => (
-                                <Grid xs={6}>
-                                    <DeviceSurface
-                                        id={device._id}
-                                        deviceID={device.deviceID}
-                                        name={device.name}
-                                        type={device.type}
-                                        position={device.position}
-                                    />
-                                </Grid>
-                            ))}
-                    </Stack>
-                ) : (
-                    <LoadingList />
-                )}
+                <DeviceSettingsModalContext.Provider
+                    value={setShowDeviceSettings}
+                >
+                    <span>
+                        {Object.keys(showDeviceSettings).length == 0 ? (
+                            <>
+                                {Object.keys(itemGroups).length > 0 ? (
+                                    <Stack
+                                        spacing={2}
+                                        direction="row"
+                                        flexWrap="nowrap"
+                                        sx={{ overflow: "auto" }}
+                                    >
+                                        {itemGroups[page - 1]
+                                            .filter(
+                                                (device) => device.type === type
+                                            )
+                                            .map((device, idx) => (
+                                                <Grid xs={6}>
+                                                    <DeviceSurface
+                                                        id={device._id}
+                                                        deviceID={
+                                                            device.deviceID
+                                                        }
+                                                        name={device.name}
+                                                        type={device.type}
+                                                        position={
+                                                            device.position
+                                                        }
+                                                    />
+                                                </Grid>
+                                            ))}
+                                    </Stack>
+                                ) : (
+                                    <LoadingList />
+                                )}
 
-                <Pagination
-                    page={page}
-                    count={Object.keys(itemGroups).length}
-                    color="primary"
-                    boundaryCount={1}
-                    siblingCount={0}
-                    onChange={(event, page) => setPage(page)}
-                />
+                                <Pagination
+                                    page={page}
+                                    count={Object.keys(itemGroups).length}
+                                    color="primary"
+                                    boundaryCount={1}
+                                    siblingCount={0}
+                                    onChange={(event, page) => setPage(page)}
+                                />
+                            </>
+                        ) : (
+                            <DeviceDetailModal
+                                deviceId={showDeviceSettings.deviceID}
+                            />
+                        )}
+                    </span>
+                </DeviceSettingsModalContext.Provider>
             </Stack>
         </Stack>
     );

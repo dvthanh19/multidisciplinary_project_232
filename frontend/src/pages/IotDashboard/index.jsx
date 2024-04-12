@@ -8,7 +8,7 @@ const IotDashboard = () => {
         <PageLayout focusOnRouteID={"iotdashboard"}>
             <DeviceList type="Device"/>
             <DeviceList type="Sensor"/>
-            <Card></Card>
+            <Card>List of raw device logs. Can be simply implemented as a Raw Text Box</Card>
             <Card></Card>
             <Card></Card>
             <Card></Card>
