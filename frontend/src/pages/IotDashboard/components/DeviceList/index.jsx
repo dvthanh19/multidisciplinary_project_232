@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Stack, Chip, Box, Typography, CircularProgress } from "@mui/joy";
+import { Stack, Chip, Box, Typography, CircularProgress, Grid } from "@mui/joy";
 import { Pagination, Fade } from "@mui/material";
 import DoneIcon from "@mui/icons-material/Done";
 import SensorsOffIcon from "@mui/icons-material/SensorsOff";
@@ -111,13 +111,15 @@ const DeviceList = ({ type }) => {
                         {itemGroups[page - 1]
                             .filter((device) => device.type === type)
                             .map((device, idx) => (
-                                <DeviceSurface
-                                    id={device._id}
-                                    deviceID={device.deviceID}
-                                    name={device.name}
-                                    type={device.type}
-                                    position={device.position}
-                                />
+                                <Grid xs={6}>
+                                    <DeviceSurface
+                                        id={device._id}
+                                        deviceID={device.deviceID}
+                                        name={device.name}
+                                        type={device.type}
+                                        position={device.position}
+                                    />
+                                </Grid>
                             ))}
                     </Stack>
                 ) : (
