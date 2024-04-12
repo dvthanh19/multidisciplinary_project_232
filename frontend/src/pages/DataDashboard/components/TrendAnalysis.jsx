@@ -1,72 +1,7 @@
-import PageLayout from "layouts/PageLayout";
 import { Typography, Grid, Stack, Card, Box } from "@mui/joy";
+
+import QueryStatsIcon from "@mui/icons-material/QueryStats";
 import { Line, Bar, Pie, Radar, Doughnut } from "react-chartjs-2";
-import DataActions from "./components/DataActions";
-
-import KPI from "./components/KPI";
-import AnomalyTracker from "./components/AnomalyTracker";
-import TrendAnalysis from "./components/TrendAnalysis";
-
-const CostKPI = () => {
-    return (
-        <Card>
-            <Stack direction="column" spacing={1}>
-                <Typography level="title-lg">Estimated Cost</Typography>
-                <Typography level="h1" textAlign="center">
-                    $1270{" "}
-                </Typography>
-                <Typography level="body-lg" color="success" textAlign="center">
-                    +96.2%{" "}
-                    <Typography level="body-sm" color="neutral">
-                        since last month
-                    </Typography>
-                </Typography>
-            </Stack>
-        </Card>
-    );
-};
-
-const EnergyConsumptionKPI = () => {
-    return (
-        <Card>
-            <Stack direction="column" spacing={1}>
-                <Typography level="title-lg">Energy consumed</Typography>
-                <Typography level="h1" textAlign="center">
-                    19.6
-                    <Typography level="title-lg" color="neutral">
-                        {" "}
-                        kWh
-                    </Typography>
-                </Typography>
-                <Typography level="body-lg" color="success" textAlign="center">
-                    +22.5%{" "}
-                    <Typography level="body-sm" color="neutral">
-                        since last month
-                    </Typography>
-                </Typography>
-            </Stack>
-        </Card>
-    );
-};
-
-const IssueTrackerKPI = () => {
-    return (
-        <Card>
-            <Stack direction="column" spacing={1}>
-                <Typography level="title-lg">System issues</Typography>
-                <Typography level="h1" textAlign="center">
-                    4
-                </Typography>
-                <Typography level="body-lg" color="success" textAlign="center">
-                    +1{" "}
-                    <Typography level="body-sm" color="neutral">
-                        since last week.
-                    </Typography>
-                </Typography>
-            </Stack>
-        </Card>
-    );
-};
 
 const EneryConsumptionTrend = () => {
     const dataHourly = {
@@ -307,77 +242,30 @@ const DevicesPerLocation = () => {
     );
 };
 
-const CostTrend = () => {
-    const data = {
-        labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-        datasets: [
-            {
-                label: "$",
-                data: [65, 59, 80, 81, 56, 55, 40],
-                backgroundColor: [
-                    "rgba(255, 99, 132, 0.2)",
-                    "rgba(255, 159, 64, 0.2)",
-                    "rgba(255, 205, 86, 0.2)",
-                    "rgba(75, 192, 192, 0.2)",
-                    "rgba(54, 162, 235, 0.2)",
-                    "rgba(153, 102, 255, 0.2)",
-                    "rgba(201, 203, 207, 0.2)",
-                ],
-                borderColor: [
-                    "rgb(255, 99, 132)",
-                    "rgb(255, 159, 64)",
-                    "rgb(255, 205, 86)",
-                    "rgb(75, 192, 192)",
-                    "rgb(54, 162, 235)",
-                    "rgb(153, 102, 255)",
-                    "rgb(201, 203, 207)",
-                ],
-                borderWidth: 1,
-            },
-        ],
-    };
-
+const TrendAnalysis = () => {
     return (
-        <Card>
-            <Stack direction="column" spacing={1}>
-                <Typography level="title-lg">Monthly Cost Trends</Typography>
-                <Stack
-                    direction="column"
-                    alignItems="center"
-                    justifyContent="center"
-                >
-                    <Line data={data}></Line>
+        <Stack direction="column" spacing={2}>
+            <Typography color="neutral" endDecorator={<QueryStatsIcon />}>
+                Trend Analysis
+            </Typography>
+            <Card variant="outlined">
+                <Typography color="neutral">
+                    Energy consumption trends
+                </Typography>
+                <Stack direction="row" spacing={2}>
+                    <EneryConsumptionTrend />
+                    <EnergyPerDevicesTrend />
                 </Stack>
-            </Stack>
-        </Card>
+            </Card>
+            <Card variant="outlined">
+                <Typography color="neutral">Geographical locations</Typography>
+                <Stack direction="row" spacing={2}>
+                    <CostPerLocationTrend />
+                    <DevicesPerLocation />
+                </Stack>
+            </Card>
+        </Stack>
     );
 };
 
-const DataDashboard = () => {
-    return (
-        <PageLayout focusOnRouteID={"datadashboard"}>
-            <Grid container spacing={2} sx={{ flexGrow: 1 }}>
-                <Grid container spacing={6} xs={8}>
-                    <Grid ys={4} sx={{ flexGrow: 1 }}>
-                        <KPI/>
-                    </Grid>
-                    <Box width="100%" />
-                    <Grid ys={8}>
-                        <TrendAnalysis />
-                    </Grid>
-                </Grid>
-                <Grid xs={4}>
-                    <Stack direction="column" spacing={6}>
-                        <AnomalyTracker />
-                        <DataActions />
-                    </Stack>
-                </Grid>
-            </Grid>
-            {/* <List name="Devices Meta Analytics">
-                <DevicesPieSurface />
-            </List> */}
-        </PageLayout>
-    );
-};
-
-export default DataDashboard;
+export default TrendAnalysis;
