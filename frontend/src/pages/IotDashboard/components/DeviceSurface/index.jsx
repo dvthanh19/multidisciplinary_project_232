@@ -30,6 +30,7 @@ import {
 
 import exportJSON from "utils/exportJSON";
 import exportCSV from "utils/exportCSV";
+import axios from "axios";
 
 import DeviceSettingsModalContext from "../../contexts/DeviceSettings";
 
@@ -91,6 +92,30 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
             },
         ],
     };
+    const toggleDeviceState = async () => {
+        try {
+            const url = `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/${deviceID}/data`;
+            let response = await axios.get(url + '/last', {
+                headers: { 'X-AIO-Key': ADAFRUIT_IO_KEY },
+            });
+            
+            const newValue = {
+                value: (parseFloat(response.data.value) === 0) ? '1' : '0',
+            };
+            
+            response = await axios.post(url, newValue, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-AIO-Key': ADAFRUIT_IO_KEY,
+                }
+            });
+            
+            setDeviceOn(newValue.value === '1');
+        } catch (error) {
+            console.error(error);
+            alert('Unable to toggle device state');
+        }
+    };
 
     return (
         <Card
@@ -115,7 +140,7 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
                         size="lg"
                         variant="solid"
                         color={deviceOn ? "success" : "danger"}
-                        onClick={() => setDeviceOn(!deviceOn)}
+                        onClick={toggleDeviceState}
                     >
                         <PowerSettingsNewIcon />
                     </IconButton>
