@@ -98,28 +98,34 @@ const GeneralInfo = ({ deviceDetail }) => {
 };
 
 const SliderControl = () => {
+    const ItensitySlider = ({labelName, minValue, maxValue}) => {
+        return (
+            <Card>
+                <Typography level="title-sm">{labelName}</Typography>
+                <Stack
+                    direction="row"
+                    alignItems="center"
+                    justifyContent="center"
+                    spacing={2}
+                >
+                    <Typography>{minValue}</Typography>
+                    <Slider
+                        defaultValue={80}
+                        valueLabelDisplay="on"
+                        step={(maxValue-minValue)/0.5}
+                        marks
+                    />
+                    <Typography>{maxValue}</Typography>
+                </Stack>
+            </Card>
+        );
+    };
+
     return (
         <Stack direction="column" spacing={1}>
             <Typography level="h3">Control</Typography>
             <Grid xs={5}>
-                <Card>
-                    <Typography level="title-sm">Intensity</Typography>
-                    <Stack
-                        direction="row"
-                        alignItems="center"
-                        justifyContent="center"
-                        spacing={2}
-                    >
-                        <Typography>0</Typography>
-                        <Slider
-                            defaultValue={80}
-                            valueLabelDisplay="on"
-                            step={10}
-                            marks
-                        />
-                        <Typography>100</Typography>
-                    </Stack>
-                </Card>
+                <ItensitySlider labelName="Itensity" minValue={0} maxValue={10}/>
             </Grid>
         </Stack>
     );
