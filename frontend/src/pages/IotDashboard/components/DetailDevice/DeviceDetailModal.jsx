@@ -15,6 +15,7 @@ import {
     Select,
     Option,
     Input,
+    Slider,
 } from "@mui/joy";
 import EditIcon from "@mui/icons-material/Edit";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
@@ -49,7 +50,7 @@ const DialogHeader = ({ deviceDetail }) => {
                         color="primary"
                         size="sm"
                         onClick={() => {
-                            alert("New changes applied! (Just kidding)")
+                            alert("New changes applied! (Just kidding)");
                             setModalObject({});
                         }}
                     >
@@ -92,6 +93,34 @@ const GeneralInfo = ({ deviceDetail }) => {
                 Last Updated At:{" "}
                 {new Date(deviceDetail.curValue.updatedAt).toLocaleString()}
             </Typography>
+        </Stack>
+    );
+};
+
+const SliderControl = () => {
+    return (
+        <Stack direction="column" spacing={1}>
+            <Typography level="h3">Control</Typography>
+            <Grid xs={5}>
+                <Card>
+                    <Typography level="title-sm">Intensity</Typography>
+                    <Stack
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="center"
+                        spacing={2}
+                    >
+                        <Typography>0</Typography>
+                        <Slider
+                            defaultValue={80}
+                            valueLabelDisplay="on"
+                            step={10}
+                            marks
+                        />
+                        <Typography>100</Typography>
+                    </Stack>
+                </Card>
+            </Grid>
         </Stack>
     );
 };
@@ -152,7 +181,7 @@ const ScheduleSection = () => {
                         justifyContent="flex-start"
                         alignItems="center"
                     >
-                        <Typography>Keep{" "}</Typography>
+                        <Typography>Keep </Typography>
                         <Select
                             placeholder="Select an action"
                             name="foo"
@@ -165,9 +194,9 @@ const ScheduleSection = () => {
                             <Option value="b">Action B</Option>
                             <Option value="c">Action C</Option>
                         </Select>
-                        <Typography>{" "}from{" "}</Typography>
+                        <Typography> from </Typography>
                         <Input type="time"></Input>
-                        <Typography>{" "}to{" "}</Typography>
+                        <Typography> to </Typography>
                         <Input type="time"></Input>
                     </Stack>
                     <Button startDecorator={<AddIcon />} size="sm">
@@ -212,6 +241,7 @@ const DeviceDetailModal = ({ deviceId }) => {
                         {/* Displaying the last value and its update time from curValue */}
                         <Stack direction="column" spacing={4}>
                             <GeneralInfo deviceDetail={deviceDetail} />
+                            <SliderControl />
                             <ThresholdActionSection />
                             <ScheduleSection />
                         </Stack>
