@@ -98,10 +98,19 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
             let response = await axios.get(url + '/last', {
                 headers: { 'X-AIO-Key': ADAFRUIT_IO_KEY },
             });
-            
-            const newValue = {
-                value: (parseFloat(response.data.value) === 0) ? '1' : '0',
-            };
+    
+            let newValue;
+            if (deviceID.toLowerCase() === 'fan') {
+                // For fan, either set to '50' or '0' based on current state
+                newValue = {
+                    value: (parseFloat(response.data.value) !== 50) ? '50' : '0',
+                };
+            } else {
+                // For other devices, toggle between '0' and '1'
+                newValue = {
+                    value: (parseFloat(response.data.value) === 0) ? '1' : '0',
+                };
+            }
             
             response = await axios.post(url, newValue, {
                 headers: {
@@ -109,13 +118,14 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
                     'X-AIO-Key': ADAFRUIT_IO_KEY,
                 }
             });
-            
-            setDeviceOn(newValue.value === '1');
+            setDeviceOn(newValue.value !== '0');
+    
         } catch (error) {
             console.error(error);
             alert('Unable to toggle device state');
         }
     };
+    
 
     return (
         <Card

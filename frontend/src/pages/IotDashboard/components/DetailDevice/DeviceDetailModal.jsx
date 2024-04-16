@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import axios from "axios";
 import { Dialog, DialogTitle, DialogContent } from "@mui/material";
 import {
@@ -22,61 +22,32 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import AddIcon from "@mui/icons-material/Add";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
+import { Snackbar, Alert } from '@mui/material';
 
 import DeviceSettingsModalContext from "pages/IotDashboard/contexts/DeviceSettings";
 
-const DialogHeader = ({ deviceDetail }) => {
+
+const DialogHeader = ({ deviceDetail, onSave }) => {
     const setModalObject = useContext(DeviceSettingsModalContext);
     return (
         <DialogTitle>
-            <Stack
-                direction="row"
-                justifyContent="space-between"
-                alignItems="center"
-            >
-                <Typography
-                    level="h1"
-                    endDecorator={
-                        <IconButton color="neutral">
-                            <EditIcon />
-                        </IconButton>
-                    }
-                >
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Typography level="h1" endDecorator={<IconButton color="neutral"><EditIcon /></IconButton>}>
                     {deviceDetail.name}
                 </Typography>
                 <Stack direction="row" spacing={1}>
-                    <Button
-                        startDecorator={<DoneIcon />}
-                        color="primary"
-                        size="sm"
-                        onClick={() => {
-                            alert("New changes applied! (Just kidding)");
-                            setModalObject({});
-                        }}
-                    >
+                    <Button startDecorator={<DoneIcon />} color="primary" size="sm" onClick={onSave}>
                         Apply
                     </Button>
-                    <IconButton
-                        color="danger"
-                        size="sm"
-                        onClick={() => {
-                            setModalObject({});
-                        }}
-                    >
+                    <IconButton color="danger" size="sm" onClick={() => setModalObject({})}>
                         <CloseIcon />
                     </IconButton>
                 </Stack>
             </Stack>
             <Typography>
                 <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                    <Chip color="success" variant="soft">
-                        {deviceDetail.type}
-                    </Chip>
-                    <Chip>
-                        <Typography startDecorator={<LocationOnIcon />}>
-                            {deviceDetail.position}
-                        </Typography>
-                    </Chip>
+                    <Chip color="success" variant="soft">{deviceDetail.type}</Chip>
+                    <Chip><Typography startDecorator={<LocationOnIcon />}>{deviceDetail.position}</Typography></Chip>
                 </Stack>
             </Typography>
         </DialogTitle>
@@ -110,7 +81,7 @@ const SliderControl = () => {
                 >
                     <Typography>{minValue}</Typography>
                     <Slider
-                        defaultValue={80}
+                        defaultValue={50}
                         valueLabelDisplay="on"
                         step={(maxValue-minValue)/0.5}
                         marks
@@ -219,55 +190,90 @@ const ScheduleSection = () => {
 
 const DeviceDetailModal = ({ deviceId }) => {
     const [deviceDetail, setDeviceDetail] = useState(0);
+    const [sliderValue, setSliderValue] = useState(50); // Default value set to 50 for demonstration
+    const deviceDetailRef = useRef(deviceDetail); 
+    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
 
+    useEffect(() => {
+        deviceDetailRef.current = deviceDetail; // Update ref whenever deviceDetail changes
+    }, [deviceDetail]);
+    
     useEffect(() => {
         const fetchDeviceDetail = async () => {
             try {
-                console.log("fetching device detail", deviceId);
-                const response = await axios.get(
-                    `http://localhost:3000/api/device/${deviceId}`
-                );
-
-                console.log(response);
+                const response = await axios.get(`http://localhost:3000/api/device/${deviceId}`);
+                console.log("Fetched device details:", response.data.device);
                 setDeviceDetail(response.data.device);
             } catch (error) {
                 console.error("Failed to fetch device details:", error);
             }
         };
-
+    
         fetchDeviceDetail();
     }, [deviceId]);
 
+    const handleSliderChange = (event, newValue) => {
+        setSliderValue(newValue);
+    };
+
+    const saveChanges = async () => {
+        const detail = deviceDetailRef.current; // Use ref to access current device details
+        console.log("Saving changes for device:", detail);
+      
+
+        const ADAFRUIT_IO_USERNAME = "1zy"; // Use the actual username
+        const ADAFRUIT_IO_KEY = "aio_HQHl865UcZU9BnFNjemUKCfwh7Vx"; // Use the actual key
+        const relevantIds = ["led", "fan"];
+
+        try {
+            for (const idPart of relevantIds) {
+                if (detail.deviceID.toLowerCase().includes(idPart)) {
+                    const url = `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/${detail.deviceID }/data`;
+                    const response = await axios.post(url, { value: sliderValue.toString() }, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-AIO-Key': ADAFRUIT_IO_KEY,
+                        }
+                    });
+                    console.log("Posted device data successfully:", response.data);
+                    setSnackbarMessage('Changes applied successfully!');
+                    setOpenSnackbar(true);  
+                }
+            }
+        } catch (error) {
+            console.error("Failed to post device data:", error);
+        }
+    };
     return (
         <Card>
             {deviceDetail ? (
                 <Box>
-                    <DialogHeader deviceDetail={deviceDetail} />
+                    <DialogHeader deviceDetail={deviceDetail} onSave={saveChanges} />
                     <DialogContent>
-                        {/* Displaying the last value and its update time from curValue */}
                         <Stack direction="column" spacing={4}>
                             <GeneralInfo deviceDetail={deviceDetail} />
-                            <SliderControl />
+                            <SliderControl sliderValue={sliderValue} onSliderChange={handleSliderChange} />
                             <ThresholdActionSection />
                             <ScheduleSection />
                         </Stack>
                     </DialogContent>
                 </Box>
             ) : (
-                <Stack
-                    direction="column"
-                    alignItems="center"
-                    justifyContent="center"
-                    sx={{ m: 6 }}
-                >
+                <Stack direction="column" alignItems="center" justifyContent="center" sx={{ m: 6 }}>
                     <CircularProgress variant="solid" />
-                    <Typography level="body-lg">
-                        Your device is being prepared...
-                    </Typography>
+                    <Typography level="body-lg">Your device is being prepared...</Typography>
                 </Stack>
             )}
+         <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={() => setOpenSnackbar(false)}>
+            <Alert onClose={() => setOpenSnackbar(false)} severity="success" sx={{ width: '100%' }}>
+                {snackbarMessage}
+            </Alert>
+        </Snackbar>
         </Card>
     );
 };
+
+
 
 export default DeviceDetailModal;
