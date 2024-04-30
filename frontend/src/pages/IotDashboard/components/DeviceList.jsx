@@ -4,10 +4,10 @@ import { Stack, Chip, Box, Typography, CircularProgress, Grid } from "@mui/joy";
 import { Pagination, Fade } from "@mui/material";
 import DoneIcon from "@mui/icons-material/Done";
 import SensorsOffIcon from "@mui/icons-material/SensorsOff";
-import DeviceSurface from "../DeviceSurface";
-import DeviceDetailModal from "../DetailDevice/DeviceDetailModal";
+import DeviceSurface from "./DeviceSurface";
+import DeviceDetailModal from "./DeviceDetailModal";
 
-import DeviceSettingsModalContext from "../../contexts/DeviceSettings";
+import DeviceSettingsModalContext from "../contexts/DeviceSettings";
 
 const devicesPerPage = 2;
 
@@ -88,20 +88,6 @@ const DeviceList = ({ type }) => {
                     <Typography sx={{ color: "neutral.500" }}>
                         Available {type}s
                     </Typography>
-                    <Chip
-                        variant="outlined"
-                        color="success"
-                        startDecorator={<DoneIcon />}
-                    >
-                        Active {activeDevices}
-                    </Chip>
-                    <Chip
-                        variant="outlined"
-                        color="danger"
-                        startDecorator={<SensorsOffIcon />}
-                    >
-                        Unactive {numberOfDevice - activeDevices}
-                    </Chip>
                 </Stack>
 
                 <DeviceSettingsModalContext.Provider

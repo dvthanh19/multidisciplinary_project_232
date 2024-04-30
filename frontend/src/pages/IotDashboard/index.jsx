@@ -1,25 +1,20 @@
 import PageLayout from "layouts/PageLayout";
 import DeviceList from "./components/DeviceList";
-import { Card } from "@mui/joy";
+import GeneralPanel from "./components/GeneralPanel.jsx";
+import EventLogs from "./components/EventLogs.jsx";
+import { Card, Box } from "@mui/joy";
 
 const IotDashboard = () => {
     return (
         console.log("IotDashboard"),
-        <PageLayout focusOnRouteID={"iotdashboard"}>
-            <DeviceList type="Device"/>
-            <DeviceList type="Sensor"/>
-            <Card>List of raw device logs. Can be simply implemented as a Raw Text Box</Card>
-            <Card></Card>
-            <Card></Card>
-            <Card></Card>
-            <Card></Card>
-            <Card></Card>
-            <Card></Card>
-            <Card></Card>
-            <Card></Card>
-            <Card></Card>
-            <Card></Card>
-        </PageLayout>
+        (
+            <PageLayout focusOnRouteID={"iotdashboard"}>
+                <GeneralPanel />
+                <DeviceList type="Device" />
+                <DeviceList type="Sensor" />
+                <EventLogs />
+            </PageLayout>
+        )
     );
 };
 

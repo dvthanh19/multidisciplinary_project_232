@@ -32,7 +32,7 @@ import exportJSON from "utils/exportJSON";
 import exportCSV from "utils/exportCSV";
 import axios from "axios";
 
-import DeviceSettingsModalContext from "../../contexts/DeviceSettings";
+import DeviceSettingsModalContext from "../contexts/DeviceSettings";
 
 const DeviceSurface = ({ id, deviceID, name, type, position }) => {
     const [deviceOn, setDeviceOn] = useState(true);
@@ -137,6 +137,7 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
+                bgcolor: deviceOn ? "" : "warning.outlinedActiveBg",
             }}
         >
             <Stack direction="column" spacing={4}>
@@ -178,6 +179,7 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
                         size="lg"
                         variant="solid"
                         color="primary"
+                        disabled={!deviceOn}
                         onClick={() => setOpenDetailModal({deviceID: id})}
                     >
                         <SettingsIcon />
