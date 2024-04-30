@@ -11,6 +11,8 @@ import {
 import { Button, DialogContent, DialogTitle } from "@mui/material";
 import { useState } from "react";
 import { Line, Pie, Bar } from "react-chartjs-2";
+import { render } from "react-dom";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
 const TotalUsers = () => {
     return (
@@ -23,7 +25,7 @@ const TotalUsers = () => {
                 <Typography level="body-lg" color="success" textAlign="center">
                     +8.2%{" "}
                     <Typography level="body-sm" color="neutral">
-                        since last month
+                        last month
                     </Typography>
                 </Typography>
             </Stack>
@@ -41,11 +43,21 @@ const UserRoles = () => {
             },
         ],
     };
+
+    const pieOptions = {
+        plugins: {
+            // Change options for ALL labels of THIS CHART
+            datalabels: {
+                color: "white",
+            },
+        },
+    };
+
     return (
         <Card>
             <Stack direction="column" spacing={1}>
                 <Typography level="title-lg">User roles</Typography>
-                <Pie data={fakeUserRolesData} />
+                <Pie data={fakeUserRolesData} options={pieOptions} plugins={[ChartDataLabels]}/>
             </Stack>
         </Card>
     );
@@ -79,7 +91,12 @@ const LoginIntensity = () => {
                             <Typography level="title-lg">
                                 Daily login distribution
                             </Typography>
-                            <Button variant="plain" onClick={() => setOpen(false)}>Done</Button>
+                            <Button
+                                variant="plain"
+                                onClick={() => setOpen(false)}
+                            >
+                                Done
+                            </Button>
                         </Stack>
                     </DialogTitle>
                     <DialogContent>
@@ -117,7 +134,7 @@ const LoginIntensity = () => {
                 </Stack>
                 <Bar onClick={() => setOpen(true)} data={fakeLoginData} />
             </Stack>
-            <DetailModal open={open} setOpen={setOpen}/>
+            <DetailModal open={open} setOpen={setOpen} />
         </Card>
     );
 };
