@@ -1,5 +1,16 @@
-import { Stack, Card, Typography } from "@mui/joy";
-import { Line, Pie } from "react-chartjs-2";
+import {
+    Stack,
+    Card,
+    Typography,
+    Box,
+    Modal,
+    ModalDialog,
+    ModalClose,
+    Chip,
+} from "@mui/joy";
+import { Button, DialogContent, DialogTitle } from "@mui/material";
+import { useState } from "react";
+import { Line, Pie, Bar } from "react-chartjs-2";
 
 const TotalUsers = () => {
     return (
@@ -45,20 +56,68 @@ const LoginIntensity = () => {
         labels: ["0:00", "3:00", "6:00", "9:00", "12:00", "14:00", "16:00"],
         datasets: [
             {
-                label: "Requests",
+                label: "Number of logins",
                 data: [65, 59, 80, 81, 56, 55, 40],
                 fill: false,
-                borderColor: "rgb(75, 192, 192)",
                 tension: 0.1,
             },
         ],
     };
+
+    const [open, setOpen] = useState(false);
+
+    const DetailModal = ({ open, setOpen }) => {
+        return (
+            <Modal open={open}>
+                <ModalDialog minWidth={500}>
+                    <DialogTitle>
+                        <Stack
+                            direction="row"
+                            justifyContent="space-between"
+                            alignItems="center"
+                        >
+                            <Typography level="title-lg">
+                                Daily login distribution
+                            </Typography>
+                            <Button variant="plain" onClick={() => setOpen(false)}>Done</Button>
+                        </Stack>
+                    </DialogTitle>
+                    <DialogContent>
+                        <Stack direction="column" spacing={1}>
+                            <Bar data={fakeLoginData} />
+                            <Typography level="body-lg">
+                                Average per hour:{" "}
+                                <Typography color="primary" variant="solid">
+                                    12.7
+                                </Typography>
+                            </Typography>
+                            <Typography level="body-lg">
+                                Last peak:{" "}
+                                <Typography color="primary" variant="solid">
+                                    16400
+                                </Typography>{" "}
+                                {/* an_ammount_of_login_that_exceeds_every_other_amount */}
+                                at <Chip color="primary">16:20 30/04/1975</Chip>
+                            </Typography>
+                        </Stack>
+                    </DialogContent>
+                </ModalDialog>
+            </Modal>
+        );
+    };
+
     return (
         <Card>
             <Stack direction="column" spacing={1}>
-                <Typography level="title-lg">Login intensity</Typography>
-                <Line data={fakeLoginData} />
+                <Stack direction="column">
+                    <Typography level="title-lg">
+                        Daily login distribution
+                    </Typography>
+                    <Typography level="body-sm">*averaged weekly</Typography>
+                </Stack>
+                <Bar onClick={() => setOpen(true)} data={fakeLoginData} />
             </Stack>
+            <DetailModal open={open} setOpen={setOpen}/>
         </Card>
     );
 };
