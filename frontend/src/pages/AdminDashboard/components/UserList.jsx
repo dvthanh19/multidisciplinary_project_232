@@ -39,34 +39,143 @@ import {
     WarningRounded,
 } from "@mui/icons-material";
 
-import axios from "axios"; // Make sure axios is installed or use fetch instead
+import axios from "axios";
 
 const UserList = () => {
-    const [users, setUsers] = useState([]); // Ensure initial state is an array
+    const [users, setUsers] = useState([]); // Đảm bảo trạng thái ban đầu là một mảng
     const [page, setPage] = useState(0);
+    const [selectedUserId, setSelectedUserId] = useState(null);
+    const [userRole, setUserRole] = useState(null);
+
+    const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
+    const [openRoleChangeConfirm, setOpenRoleChangeConfirm] = useState(false);
+
+    // Hàm để lấy danh sách người dùng
+    const fetchData = async () => {
+        try {
+            const response = await axios.get("http://localhost:3000/api/user");
+            if (response.data && Array.isArray(response.data.user)) {
+                setUsers(response.data.user);
+            } else {
+                console.error(
+                    "Expected an array but got",
+                    typeof response.data.user
+                );
+            }
+        } catch (error) {
+            console.error("Error fetching data: ", error);
+        }
+    };
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get(
-                    "http://localhost:3000/api/user"
-                );
-                // Access the user key from the response data
-                if (response.data && Array.isArray(response.data.user)) {
-                    setUsers(response.data.user);
-                } else {
-                    console.error(
-                        "Expected an array but got",
-                        typeof response.data.user
-                    );
-                }
-            } catch (error) {
-                console.error("Error fetching data: ", error);
-            }
-        };
-
-        fetchData();
+        fetchData(); // Lấy dữ liệu ban đầu
     }, []);
+
+    // Hàm xử lý xoá người dùng
+    const handleDeleteUser = async (userId) => {
+        try {
+            const response = await axios.delete(`http://localhost:3000/api/user/${userId}`);
+            if (response.status === 200) {
+                console.log("User deleted successfully");
+                // Sau khi xoá, cập nhật lại danh sách người dùng
+                fetchData();
+            } else {
+                console.error("Failed to delete user:", response.data);
+            }
+        } catch (error) {
+            console.error("Error deleting user:", error);
+        }
+    };
+
+    // Hàm xử lý thay đổi vai trò người dùng
+    const handleRoleChange = async (userId, newRole) => {
+        try {
+            const response = await axios.put(`http://localhost:3000/api/user/${userId}`, { role: newRole });
+            if (response.status === 200) {
+                console.log("User role updated successfully");
+                // Sau khi thay đổi vai trò, cập nhật lại danh sách người dùng
+                fetchData();
+            } else {
+                console.error("Failed to update user role:", response.data);
+            }
+        } catch (error) {
+            console.error("Error updating user role:", error);
+        }
+    };
+
+    // Modal xác nhận xoá người dùng
+    const ConfirmDeleteModal = ({ open, setOpen, userId }) => {
+        return (
+            <Modal open={open}>
+                <ModalDialog variant="outlined" role="alertdialog">
+                    <DialogTitle>
+                        <WarningRounded />
+                        Confirmation
+                    </DialogTitle>
+                    <Divider />
+                    <DialogContent>
+                        Are you sure you want to remove this user permanently?
+                    </DialogContent>
+                    <DialogActions>
+                        <Button
+                            variant="solid"
+                            color="danger"
+                            onClick={() => {
+                                handleDeleteUser(userId);
+                                setOpen(false);
+                            }}
+                        >
+                            Yes, delete for me
+                        </Button>
+                        <Button
+                            variant="plain"
+                            color="neutral"
+                            onClick={() => setOpen(false)}
+                        >
+                            Cancel
+                        </Button>
+                    </DialogActions>
+                </ModalDialog>
+            </Modal>
+        );
+    };
+
+    // Modal xác nhận thay đổi vai trò người dùng
+    const ConfirmRoleChangeModal = ({ open, setOpen, userId }) => {
+        return (
+            <Modal open={open}>
+                <ModalDialog variant="outlined" role="alertdialog">
+                    <DialogTitle>
+                        <WarningRounded />
+                        Confirmation
+                    </DialogTitle>
+                    <Divider />
+                    <DialogContent>
+                        Are you sure you want to change this user's role to {userRole}?
+                    </DialogContent>
+                    <DialogActions>
+                        <Button
+                            variant="solid"
+                            color="primary"
+                            onClick={() => {
+                                handleRoleChange(userId, userRole);
+                                setOpen(false);
+                            }}
+                        >
+                            Yes, I am sure
+                        </Button>
+                        <Button
+                            variant="plain"
+                            color="neutral"
+                            onClick={() => setOpen(false)}
+                        >
+                            Cancel
+                        </Button>
+                    </DialogActions>
+                </ModalDialog>
+            </Modal>
+        );
+    };
 
     return (
         <TableContainer sx={{ maxHeight: "80vh" }}>
@@ -87,11 +196,90 @@ const UserList = () => {
                         <TableRow key={index}>
                             <TableCell>{index + 1}</TableCell>
                             <TableCell>
-                                <UserInfo username={user.fullname} />
+                                <Typography
+                                    endDecorator={
+                                        <Chip size="sm" color="primary" variant="soft">
+                                            {user.role}
+                                        </Chip>
+                                    }
+                                >
+                                    {user.fullname}
+                                </Typography>
                             </TableCell>
                             <TableCell>{user.email}</TableCell>
                             <TableCell>
-                                <UserSettings />
+                                <Stack direction="row">
+                                    {/* Thay đổi vai trò người dùng */}
+                                    <Dropdown>
+                                        <Tooltip title="Set role..." arrow>
+                                            <MenuButton
+                                                slots={{
+                                                    root: IconButton,
+                                                }}
+                                                variant="plain"
+                                                color="neutral"
+                                                onClick={() => setSelectedUserId(user._id)}
+                                            >
+                                                <PeopleAlt />
+                                            </MenuButton>
+                                        </Tooltip>
+                                        <Menu>
+                                            <MenuItem
+                                                selected={user.role === "admin"}
+                                                onClick={() => {
+                                                    setOpenRoleChangeConfirm(true);
+                                                    setUserRole("admin");
+                                                }}
+                                            >
+                                                Admin
+                                            </MenuItem>
+                                            <MenuItem
+                                                selected={user.role === "student"}
+                                                onClick={() => {
+                                                    setOpenRoleChangeConfirm(true);
+                                                    setUserRole("student");
+                                                }}
+                                            >
+                                                Student
+                                            </MenuItem>
+                                            <MenuItem
+                                                selected={user.role === "teacher"}
+                                                onClick={() => {
+                                                    setOpenRoleChangeConfirm(true);
+                                                    setUserRole("teacher");
+                                                }}
+                                            >
+                                                Teacher
+                                            </MenuItem>
+                                        </Menu>
+                                        <ConfirmRoleChangeModal
+                                            open={openRoleChangeConfirm}
+                                            setOpen={setOpenRoleChangeConfirm}
+                                            userId={selectedUserId}
+                                        />
+                                    </Dropdown>
+
+                                    {/* Xoá người dùng */}
+                                    <Tooltip title="Delete" arrow>
+                                        <Box>
+                                            <IconButton
+                                                variant="plain"
+                                                color="danger"
+                                                onClick={() => {
+                                                    setSelectedUserId(user._id);
+                                                    setOpenDeleteConfirm(true);
+                                                }}
+                                            >
+                                                <DeleteForever />
+                                            </IconButton>
+                                            <ConfirmDeleteModal
+                                                open={openDeleteConfirm}
+                                                setOpen={setOpenDeleteConfirm}
+                                                userId={selectedUserId}
+                                            />
+                                        </Box>
+                                    </Tooltip>
+                                </Stack>
                             </TableCell>
                         </TableRow>
                     ))}
@@ -104,6 +292,7 @@ const UserList = () => {
                             count={users.length}
                             page={page}
                             rowsPerPage={10}
+                            onPageChange={(event, newPage) => setPage(newPage)}
                         />
                     </TableRow>
                 </TableFooter>
@@ -112,189 +301,5 @@ const UserList = () => {
     );
 };
 
-const UserInfo = ({ username }) => {
-    return (
-        <Tooltip
-            title={"Last online: 12 minutes ago"}
-            arrow
-            color="neutral"
-            placement="top"
-        >
-            <Typography
-                endDecorator={
-                    <Chip size="sm" color="primary" variant="soft">
-                        Admin
-                    </Chip>
-                }
-            >
-                {username}
-            </Typography>
-        </Tooltip>
-    );
-};
-
-const UserSettings = () => {
-    const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
-    const [openRoleChangeConfirm, setOpenRoleChangeConfirm] = useState(false);
-    const shouldBeSomethingWeGotFromTheFirstFetchFromBackend = "admin";
-    const [userRole, setUserRole] = useState(
-        shouldBeSomethingWeGotFromTheFirstFetchFromBackend
-    );
-
-    const ConfirmDeleteModal = ({ open, setOpen, content }) => {
-        return (
-            <Modal open={open}>
-                <ModalDialog variant="outlined" role="alertdialog">
-                    <DialogTitle>
-                        <WarningRounded />
-                        Confirmation
-                    </DialogTitle>
-                    <Divider />
-                    <DialogContent>{content}</DialogContent>
-                    <DialogActions>
-                        <Button
-                            variant="solid"
-                            color="danger"
-                            onClick={() => setOpen(false)}
-                        >
-                            Yes, delete for me
-                        </Button>
-                        <Button
-                            variant="plain"
-                            color="neutral"
-                            onClick={() => setOpen(false)}
-                        >
-                            Cancel
-                        </Button>
-                    </DialogActions>
-                </ModalDialog>
-            </Modal>
-        );
-    };
-
-    const ConfirmRoleChangeModal = ({
-        open,
-        setOpen,
-        content,
-        userRole,
-        setUserRole,
-    }) => {
-        return (
-            <Modal open={open}>
-                <ModalDialog variant="outlined" role="alertdialog">
-                    <DialogTitle>
-                        <WarningRounded />
-                        Confirmation
-                    </DialogTitle>
-                    <Divider />
-                    <DialogContent>{content}</DialogContent>
-                    <DialogActions>
-                        <Button
-                            variant="solid"
-                            color="primary"
-                            onClick={() => {
-                                setOpen(false);
-                            }}
-                        >
-                            Yes, I am sure
-                        </Button>
-                        <Button
-                            variant="plain"
-                            color="neutral"
-                            onClick={() => {
-                                setOpen(false);
-                            }}
-                        >
-                            Cancel
-                        </Button>
-                    </DialogActions>
-                </ModalDialog>
-            </Modal>
-        );
-    };
-
-    return (
-        <Stack direction="row">
-            {/* Deprecated since we dont have time to implement any more features on this */}
-            {/* <Tooltip title="More..." arrow>
-                <IconButton variant="plain" color="neutral">
-                    <MoreHoriz />
-                </IconButton>
-            </Tooltip> */}
-            <Stack>
-                <Dropdown>
-                    <Tooltip title="Set role..." arrow>
-                        <MenuButton
-                            slots={{
-                                root: IconButton,
-                            }}
-                            variant="plain"
-                            color="neutral"
-                        >
-                            <PeopleAlt />
-                        </MenuButton>
-                    </Tooltip>
-                    <Menu>
-                        <MenuItem
-                            selected={userRole === "admin"}
-                            onClick={() => {
-                                setOpenRoleChangeConfirm(true);
-                                setUserRole("admin");
-                            }}
-                        >
-                            Admin
-                        </MenuItem>
-                        <MenuItem
-                            selected={userRole === "student"}
-                            onClick={() => {
-                                setOpenRoleChangeConfirm(true);
-                                setUserRole("student");
-                            }}
-                        >
-                            Student
-                        </MenuItem>
-                        <MenuItem
-                            selected={userRole === "teacher"}
-                            onClick={() => {
-                                setOpenRoleChangeConfirm(true);
-                                setUserRole("teacher");
-                            }}
-                        >
-                            Teacher
-                        </MenuItem>
-                    </Menu>
-                    <ConfirmRoleChangeModal
-                        open={openRoleChangeConfirm}
-                        setOpen={setOpenRoleChangeConfirm}
-                        content={
-                            <Typography>
-                                Are you sure you want to change this user's
-                                permission to <Chip>{userRole}</Chip> ?
-                            </Typography>
-                        }
-                        userRole={userRole}
-                        setUserRole={setUserRole}
-                    />
-                </Dropdown>
-            </Stack>
-            <Tooltip title="Delete" arrow>
-                <Box>
-                    <IconButton
-                        variant="plain"
-                        color="danger"
-                        onClick={() => setOpenDeleteConfirm(true)}
-                    >
-                        <DeleteForever />
-                    </IconButton>
-                    <ConfirmDeleteModal
-                        open={openDeleteConfirm}
-                        setOpen={setOpenDeleteConfirm}
-                        content="Are you sure you want to remove this user permanently?"
-                    />
-                </Box>
-            </Tooltip>
-        </Stack>
-    );
-};
-
 export default UserList;
+
