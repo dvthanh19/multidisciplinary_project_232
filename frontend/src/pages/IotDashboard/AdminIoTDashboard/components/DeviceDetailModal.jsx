@@ -24,7 +24,7 @@ import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
 import { Snackbar, Alert } from '@mui/material';
 
-import DeviceSettingsModalContext from "pages/IotDashboard/contexts/DeviceSettings";
+import DeviceSettingsModalContext from "../contexts/DeviceSettings";
 
 
 const DialogHeader = ({ deviceDetail, onSave }) => {

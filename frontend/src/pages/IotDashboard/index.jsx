@@ -1,21 +1,9 @@
-import PageLayout from "layouts/PageLayout";
-import DeviceList from "./components/DeviceList";
-import GeneralPanel from "./components/GeneralPanel.jsx";
-import EventLogs from "./components/EventLogs.jsx";
-import { Card, Box } from "@mui/joy";
+import AdminIotDashboard from "./AdminIoTDashboard";
+import StudentIotDashboard from "./StudentIoTDashboard";
 
-const IotDashboard = () => {
-    return (
-        console.log("IotDashboard"),
-        (
-            <PageLayout focusOnRouteID={"iotdashboard"}>
-                <GeneralPanel />
-                <DeviceList type="Device" />
-                <DeviceList type="Sensor" />
-                <EventLogs />
-            </PageLayout>
-        )
-    );
+const IoTDashboard = () => {
+    return <AdminIotDashboard />;
+    // return <StudentIotDashboard/>;
 };
 
-export default IotDashboard;
+export default IoTDashboard;
