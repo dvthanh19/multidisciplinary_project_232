@@ -1,9 +1,8 @@
 import AdminDataDashboard from "./AdminDataDashboard";
-import StudentDataDashboard from "./StudentDataDashboard";
 
 const DataDashboard = () => {
     return <AdminDataDashboard />;
-    // return <StudentDataDashboard/>;
+    // return <StudentDataDashboard/>; // NEVER IMPLEMENT THIS THING since it is impratical
 };
 
 export default DataDashboard;
