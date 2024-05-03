@@ -9,9 +9,6 @@ import TrendAnalysis from "./components/TrendAnalysis";
 const AdminDataDashboard = () => {
     return (
         <PageLayout focusOnRouteID={"datadashboard"}>
-            <Box>
-                <Typography level="h1">Admin Data Dashboard</Typography>
-            </Box>
             <KPI />
             <TrendAnalysis />
         </PageLayout>
