@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Stack,
     Table,
@@ -18,8 +18,6 @@ import {
     DialogContent,
     DialogActions,
     Button,
-    Select,
-    Option,
     FormControl,
     Input,
 } from "@mui/joy";
@@ -48,7 +46,7 @@ const UserList = () => {
     const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
     const [openRoleChangeConfirm, setOpenRoleChangeConfirm] = useState(false);
     const [searchValue, setSearchValue] = useState("");
-    const [searchType, setSearchType] = useState("name");
+    const [inputSearchValue, setInputSearchValue] = useState("");
 
     // Function to fetch user data
     const fetchData = async () => {
@@ -99,27 +97,9 @@ const UserList = () => {
         }
     };
 
-    // Use debounce to delay the search and improve responsiveness
-    const debouncedSearch = useCallback(
-        debounce((searchValue, searchType) => {
-            setSearchValue(searchValue);
-        }, ),
-        []
-    );
-
-    // Handler for search input changes
-    const handleSearchChange = (event) => {
-        debouncedSearch(event.target.value, searchType);
-    };
-
-    // Filter users based on search value and type
+    // Filter users based on search value
     const filteredUsers = users.filter((user) => {
-        if (searchType === "name") {
-            return user.fullname.toLowerCase().includes(searchValue.toLowerCase());
-        } else if (searchType === "email") {
-            return user.email.toLowerCase().includes(searchValue.toLowerCase());
-        }
-        return false;
+        return user.fullname.toLowerCase().includes(searchValue.toLowerCase());
     });
 
     // Confirm delete modal
@@ -198,47 +178,28 @@ const UserList = () => {
 
     // Search bar component
     const SearchBar = () => (
-    <Box display="flex" gap={1} alignItems="center">
-        <FormControl>
-            <Select
-                size="sm"
-                value={searchType}
-                onChange={(event) => {
-                    // Ensure event is not null or undefined
-                    if (event && event.target) {
-                        setSearchType(event.target.value);
-                    }
+        <Box display="flex" gap={1} alignItems="center">
+            <FormControl sx={{ width: "500px" }}> {/* Adjusted width of the search bar */}
+                <Input
+                    size="sm"
+                    value={inputSearchValue}
+                    onChange={(event) => setInputSearchValue(event.target.value)}
+                    placeholder="Search users..."
+                />
+            </FormControl>
+            <Button
+                variant="solid"
+                color="primary"
+                startDecorator={<Search />}
+                onClick={() => {
+                    setSearchValue(inputSearchValue);
+                    setPage(0);
                 }}
             >
-                <Option value="name">By Name</Option>
-                <Option value="email">By Email</Option>
-            </Select>
-        </FormControl>
-        <FormControl sx={{ width: 300 }}>
-            <Input
-                size="sm"
-                value={searchValue}
-                onChange={(event) => {
-                    // Ensure event is not null or undefined
-                    if (event && event.target) {
-                        setSearchValue(event.target.value);
-                        debouncedSearch(event.target.value, searchType);
-                    }
-                }}
-                placeholder="Search users..."
-            />
-        </FormControl>
-        <Button
-            variant="solid"
-            color="primary"
-            startDecorator={<Search />}
-            onClick={() => setPage(0)}
-        >
-            Search
-        </Button>
-    </Box>
-);
-
+                Search
+            </Button>
+        </Box>
+    );
 
     return (
         <Stack spacing={2}>
@@ -382,15 +343,3 @@ const UserList = () => {
 };
 
 export default UserList;
-
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = function() {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
