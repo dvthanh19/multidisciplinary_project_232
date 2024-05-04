@@ -11,7 +11,6 @@ const AdminDashboard = () => {
             <Grid container spacing={2} sx={{ flexGrow: 1 }}>
                 <Grid xs={9}>
                     <Stack direction="column" spacing={2}>
-                        <UserSearch />
                         <UserList />
                     </Stack>
                 </Grid>
