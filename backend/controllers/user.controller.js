@@ -71,10 +71,110 @@ const deleteUser = async (req, res) => {
     }
 }
 
+const getTotalUsersCount = async (req, res) => {
+    try {
+        const totalUsersCount = await User.countDocuments();
+        res.status(200).json({ totalUsersCount });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+        console.error(error);
+    }
+};
+
+
+const getUserRoles = async (req, res) => {
+    try {
+        // Get user roles distribution
+        const userRoles = await User.aggregate([
+            {
+                $group: {
+                    _id: "$role",
+                    count: { $sum: 1 },
+                },
+            },
+            {
+                $sort: { count: -1 },
+            },
+        ]);
+
+        // Convert the result to the desired format
+        const labels = userRoles.map(role => role._id);
+        const data = userRoles.map(role => role.count);
+
+        res.status(200).json({
+            labels,
+            data,
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+        console.log(error);
+    }
+};
+
+const getLoginIntensity = async (req, res) => {
+    try {
+        // Fetch login data and calculate intensity
+        // For this, you need to have login history in your database
+        
+        const loginData = {
+            labels: ["0:00", "3:00", "6:00", "9:00", "12:00", "14:00", "16:00"],
+            datasets: [
+                {
+                    label: "Number of logins",
+                    data: [65, 59, 80, 81, 56, 55, 40], // This is just sample data, replace with actual data
+                    fill: false,
+                    tension: 0.1,
+                },
+            ],
+        };
+
+        // Calculate average per hour and last peak
+        const averagePerHour = 12.7; // Replace with actual average
+        const lastPeak = {
+            time: "16:20 30/04/1975", // Replace with actual last peak time
+            value: 16400, // Replace with actual last peak value
+        };
+
+        res.status(200).json({
+            labels: loginData.labels,
+            data: loginData.datasets[0].data,
+            averagePerHour,
+            lastPeak,
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+        console.log(error);
+    }
+};
+
+const getAdmins = async (req, res) => {
+    try {
+        // Fetching admin users with the role "admin"
+        const admins = await User.find({ role: "admin" }).select("name");
+        
+        // Check if the admins list is retrieved successfully
+        if (!admins) {
+            return res.status(404).json({ message: "No admins found" });
+        }
+
+        // Sending response with admins data
+        res.status(200).json({ admins });
+    } catch (error) {
+        console.error("Error fetching admins:", error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
+
 module.exports = {
     getUser,
     getUserById,
     createUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    getTotalUsersCount,
+    getUserRoles,
+    getLoginIntensity,
+    getAdmins
 }

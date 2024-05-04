@@ -14,50 +14,88 @@ import { Line, Pie, Bar } from "react-chartjs-2";
 import { render } from "react-dom";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 
+import React, { useEffect } from "react";
+import axios from "axios";
+
+
 const TotalUsers = () => {
+    const [totalUsers, setTotalUsers] = useState(0);
+
+    useEffect(() => {
+        // Function to fetch all users and count them
+        const fetchAndCountUsers = async () => {
+            try {
+                const response = await axios.get('http://localhost:3000/api/user'); // Fetch all users from the API endpoint
+                console.log(response)
+                const usersList = response.data.user; // Extract the list of users from the response data
+                const count = usersList.length; // Calculate the total number of users
+                setTotalUsers(count); // Update the state with the total user count
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            }
+        };
+
+        fetchAndCountUsers(); // Call the function to fetch and count users
+    }, []);
+
     return (
         <Card>
             <Stack direction="column" spacing={1}>
                 <Typography level="title-lg">Total users</Typography>
                 <Typography level="h1" textAlign="center">
-                    1270{" "}
-                </Typography>
-                <Typography level="body-lg" color="success" textAlign="center">
-                    +8.2%{" "}
-                    <Typography level="body-sm" color="neutral">
-                        last month
-                    </Typography>
+                    {totalUsers}
                 </Typography>
             </Stack>
         </Card>
     );
 };
 
+
 const UserRoles = () => {
-    const fakeUserRolesData = {
-        labels: ["Student", "Teacher", "Admin"],
-        datasets: [
-            {
-                label: "Number of people",
-                data: [12, 19, 3],
-            },
-        ],
-    };
+    const [userRolesData, setUserRolesData] = useState({
+        labels: [],
+        datasets: [],
+    });
+
+    useEffect(() => {
+        const fetchUserRoles = async () => {
+            try {
+                const response = await axios.get("http://localhost:3000/api/user/statistics/user-roles");
+                const { labels, data } = response.data;
+                setUserRolesData({
+                    labels,
+                    datasets: [
+                        {
+                            label: "Number of people",
+                            data,
+                            backgroundColor: ["#00B2BF", "#426EB4", "#67BF7F", "#635BA2"],
+                        },
+                    ],
+                });
+            } catch (error) {
+                console.error("Error fetching user roles data:", error);
+            }
+        };
+        fetchUserRoles();
+    }, []);
 
     const pieOptions = {
         plugins: {
-            // Change options for ALL labels of THIS CHART
             datalabels: {
                 color: "white",
             },
         },
     };
 
+    if (userRolesData.labels.length === 0) {
+        return <Card>Loading...</Card>;
+    }
+
     return (
         <Card>
             <Stack direction="column" spacing={1}>
                 <Typography level="title-lg">User roles</Typography>
-                <Pie data={fakeUserRolesData} options={pieOptions} plugins={[ChartDataLabels]}/>
+                <Pie data={userRolesData} options={pieOptions} plugins={[ChartDataLabels]} />
             </Stack>
         </Card>
     );
@@ -139,12 +177,13 @@ const LoginIntensity = () => {
     );
 };
 
+
 const UserDashboard = () => {
     return (
         <Stack direction="column" spacing={2}>
             <TotalUsers />
             <UserRoles />
-            <LoginIntensity />
+            {/* <LoginIntensity /> */}
         </Stack>
     );
 };
