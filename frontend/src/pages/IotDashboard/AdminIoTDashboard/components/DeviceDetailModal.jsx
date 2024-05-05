@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import axios from "axios";
 import { Dialog, DialogTitle, DialogContent } from "@mui/material";
 import {
@@ -68,23 +68,21 @@ const GeneralInfo = ({ deviceDetail }) => {
     );
 };
 
-const SliderControl = () => {
-    const ItensitySlider = ({labelName, minValue, maxValue}) => {
+const SliderControl = ({ sliderValue, onSliderChange }) => {
+    const ItensitySlider = ({ labelName, minValue, maxValue }) => {
         return (
             <Card>
                 <Typography level="title-sm">{labelName}</Typography>
-                <Stack
-                    direction="row"
-                    alignItems="center"
-                    justifyContent="center"
-                    spacing={2}
-                >
+                <Stack direction="row" alignItems="center" justifyContent="center" spacing={2}>
                     <Typography>{minValue}</Typography>
                     <Slider
-                        defaultValue={50}
+                        value={sliderValue} // Use value from props
+                        onChange={onSliderChange} // Use handler from props
                         valueLabelDisplay="on"
-                        step={(maxValue-minValue)/0.5}
+                        step={5}
                         marks
+                        min={minValue}
+                        max={maxValue}
                     />
                     <Typography>{maxValue}</Typography>
                 </Stack>
@@ -96,55 +94,16 @@ const SliderControl = () => {
         <Stack direction="column" spacing={1}>
             <Typography level="h3">Control</Typography>
             <Grid xs={5}>
-                <ItensitySlider labelName="Itensity" minValue={0} maxValue={10}/>
+                <ItensitySlider labelName="Intensity" minValue={0} maxValue={100}/>
             </Grid>
         </Stack>
     );
 };
 
-const ThresholdActionSection = () => {
-    return (
-        <Stack direction="column">
-            <Typography level="h3">Threshold action</Typography>
-            <Card>
-                <Stack direction="row" justifyContent="space-between">
-                    <Stack
-                        direction="row"
-                        spacing={2}
-                        justifyContent="flex-start"
-                        alignItems="center"
-                    >
-                        <Typography>Trigger </Typography>
-                        <Select
-                            placeholder="Select an action"
-                            name="foo"
-                            required
-                            sx={{ minWidth: 200 }}
-                            defaultValue="a"
-                            onChange={() => {}}
-                        >
-                            <Option value="a">Action A</Option>
-                            <Option value="b">Action B</Option>
-                            <Option value="c">Action C</Option>
-                        </Select>
-                        <Typography> on value </Typography>
-                        <Input
-                            sx={{ width: 100 }}
-                            placeholder="value..."
-                            type="number"
-                        ></Input>
-                    </Stack>
-                    <Button startDecorator={<AddIcon />} size="sm">
-                        New Action
-                    </Button>
-                </Stack>
-            </Card>
-            <Card sx={{ bgcolor: "yellow" }}>
-                A list to display current Threshold Actions
-            </Card>
-        </Stack>
-    );
-};
+
+
+
+
 
 const ScheduleSection = () => {
     return (
@@ -194,6 +153,8 @@ const DeviceDetailModal = ({ deviceId }) => {
     const deviceDetailRef = useRef(deviceDetail); 
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [actions, setActions] = useState([]);
+    const [newAction, setNewAction] = useState({ actionType: 'a', threshold: '' });
 
     useEffect(() => {
         deviceDetailRef.current = deviceDetail; // Update ref whenever deviceDetail changes
@@ -214,22 +175,44 @@ const DeviceDetailModal = ({ deviceId }) => {
     }, [deviceId]);
 
     const handleSliderChange = (event, newValue) => {
+        console.log("Slider changing to:", newValue);
         setSliderValue(newValue);
+    };
+    const handleActionTypeChange = (event) => {
+        setNewAction(prev => ({ ...prev, actionType: event.target.value }));
+    };
+    
+    const handleThresholdChange = (event) => {
+        setNewAction(prev => ({ ...prev, threshold: event.target.value }));
+    };
+    
+    const addNewAction = () => {
+        if (newAction.threshold !== '' && !isNaN(newAction.threshold)) {
+            setActions(prev => [...prev, newAction]);
+            setNewAction({ actionType: 'a', threshold: '' }); // Reset the form after adding
+        } else {
+            alert('Please enter a valid threshold value.');
+        }
+    };
+    const renderActions = () => {
+        return actions.map((action, index) => (
+            <Box key={index} sx={{ mt: 2, p: 2, bgcolor: 'background.paper' }}>
+                <Typography>Trigger {action.actionType} on value {action.threshold}</Typography>
+            </Box>
+        ));
     };
 
     const saveChanges = async () => {
-        const detail = deviceDetailRef.current; // Use ref to access current device details
+        const detail = deviceDetailRef.current;
         console.log("Saving changes for device:", detail);
-      
-
-        const ADAFRUIT_IO_USERNAME = "1zy"; // Use the actual username
-        const ADAFRUIT_IO_KEY = "aio_HQHl865UcZU9BnFNjemUKCfwh7Vx"; // Use the actual key
+        const ADAFRUIT_IO_USERNAME = "1zy";
+        const ADAFRUIT_IO_KEY = "aio_HQHl865UcZU9BnFNjemUKCfwh7Vx";
         const relevantIds = ["led", "fan"];
 
         try {
             for (const idPart of relevantIds) {
-                if (detail.deviceID.toLowerCase().includes(idPart)) {
-                    const url = `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/${detail.deviceID }/data`;
+                if (detail && detail.deviceID.toLowerCase().includes(idPart)) {
+                    const url = `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/${detail.deviceID}/data`;
                     const response = await axios.post(url, { value: sliderValue.toString() }, {
                         headers: {
                             'Content-Type': 'application/json',
@@ -238,13 +221,94 @@ const DeviceDetailModal = ({ deviceId }) => {
                     });
                     console.log("Posted device data successfully:", response.data);
                     setSnackbarMessage('Changes applied successfully!');
-                    setOpenSnackbar(true);  
+                    setOpenSnackbar(true);
                 }
             }
+            actions.forEach(action => {
+                if (sliderValue >= Number(action.threshold)) {
+                    if (action.actionType === 'a') {
+                        turnDeviceOff();
+                    }
+                    // Add other actions like notify or reduce power here
+                }
+            });
+    
+     
         } catch (error) {
             console.error("Failed to post device data:", error);
+            setSnackbarMessage('Failed to apply changes.');
+            setOpenSnackbar(true);
         }
     };
+    const ThresholdActionSection = ({
+        actions,
+        setActions,
+        newAction,
+        setNewAction,
+        handleActionTypeChange,
+        handleThresholdChange,
+        addNewAction,
+        
+    }) => {
+        return (
+            <Stack direction="column">
+                <Typography level="h3">Threshold action 1 </Typography>
+                <Card>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                        <Stack direction="row" spacing={2} alignItems="center">
+                            <Typography>Trigger </Typography>
+                            <Select
+                                placeholder="Select an action"
+                                name="foo"
+                                value={newAction.actionType}
+                                onChange={handleActionTypeChange}
+                                sx={{ minWidth: 200 }}
+                            >
+                                <Option value="a">Action A (Turn Off)</Option>
+                                <Option value="b">Action B (Notify)</Option>
+                                <Option value="c">Action C (Reduce Power)</Option>
+                            </Select>
+                            <Typography> on value </Typography>
+                            <Input
+                                sx={{ width: 100 }}
+                                placeholder="value..."
+                                type="number"
+                                value={newAction.threshold}
+                                onChange={handleThresholdChange}
+                            ></Input>
+                        </Stack>
+                        <Button startDecorator={<AddIcon />} size="sm" onClick={addNewAction}>
+                            Add Action
+                        </Button>
+                    </Stack>
+                </Card>
+                <Card sx={{ bgcolor: "yellow", mt: 2 }}>
+                    {renderActions()}
+                </Card>
+            </Stack>
+        );
+    };
+    const turnDeviceOff = async () => {
+        const ADAFRUIT_IO_USERNAME = "1zy";
+        const ADAFRUIT_IO_KEY = "aio_HQHl865UcZU9BnFNjemUKCfwh7Vx";
+        try {
+            const url = `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/${deviceDetailRef.current.deviceID}/data`;
+            const response = await axios.post(url, { value: "0" }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-AIO-Key": ADAFRUIT_IO_KEY,
+                }
+            });
+            setSnackbarMessage('Device turned off due to threshold breach!');
+            setOpenSnackbar(true);
+        } catch (error) {
+            console.error("Failed to turn off the device:", error);
+            setSnackbarMessage('Failed to turn off the device.');
+            setOpenSnackbar(true);
+        }
+    };
+    
+
     return (
         <Card>
             {deviceDetail ? (
@@ -254,7 +318,11 @@ const DeviceDetailModal = ({ deviceId }) => {
                         <Stack direction="column" spacing={4}>
                             <GeneralInfo deviceDetail={deviceDetail} />
                             <SliderControl sliderValue={sliderValue} onSliderChange={handleSliderChange} />
-                            <ThresholdActionSection />
+                            <ThresholdActionSection actions={actions} setActions={setActions}
+                                                    newAction={newAction} setNewAction={setNewAction}
+                                                    handleActionTypeChange={handleActionTypeChange}
+                                                    handleThresholdChange={handleThresholdChange}
+                                                    addNewAction={addNewAction} />
                             <ScheduleSection />
                         </Stack>
                     </DialogContent>
