@@ -78,10 +78,10 @@ const SideNav = ({ focusOnRouteID }) => {
                     </ListItemDecorator>
                     <ListItemContent>
                         <Typography level="title-md" noWrap>
-                            {userData.fullname} {/* Sử dụng fullname từ userData */}
+                            {userData.fullname} 
                         </Typography>
                         <Typography level="body-sm">
-                            {userData.role} {/* Sử dụng role từ userData */}
+                            {userData.role} 
                         </Typography>
                     </ListItemContent>
                     <IconButton onClick={submitSignOut} sx={{ color: "neutral.solidBg" }}>

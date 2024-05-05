@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import {
     Stack,
     Table,
@@ -37,10 +36,12 @@ import {
     WarningRounded,
 } from "@mui/icons-material";
 import axios from "axios";
+import React, { useEffect, useState, useMemo } from "react";
 
 const UserList = () => {
     const [users, setUsers] = useState([]);
     const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);  // Control pagination size
     const [selectedUserId, setSelectedUserId] = useState(null);
     const [userRole, setUserRole] = useState(null);
     const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
@@ -61,11 +62,15 @@ const UserList = () => {
             console.error("Error fetching data:", error);
         }
     };
-
+  
     // Initial data fetch
     useEffect(() => {
         fetchData();
     }, []);
+    // Memoize filtered users list
+    const filteredUsers = users.filter((user) => user.fullname.toLowerCase().includes(searchValue.toLowerCase()));
+    const currentTableData = filteredUsers.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
+
 
     // Function to handle user deletion
     const handleDeleteUser = async (userId) => {
@@ -98,9 +103,9 @@ const UserList = () => {
     };
 
     // Filter users based on search value
-    const filteredUsers = users.filter((user) => {
-        return user.fullname.toLowerCase().includes(searchValue.toLowerCase());
-    });
+    // const filteredUsers = users.filter((user) => {
+    //     return user.fullname.toLowerCase().includes(searchValue.toLowerCase());
+    // });
 
     // Confirm delete modal
     const ConfirmDeleteModal = ({ open, setOpen, userId }) => {
@@ -177,29 +182,27 @@ const UserList = () => {
     };
 
     // Search bar component
-    const SearchBar = () => (
+    const SearchBar = React.memo(() => (
         <Box display="flex" gap={1} alignItems="center">
-            <FormControl sx={{ width: "500px" }}> {/* Adjusted width of the search bar */}
+            <FormControl sx={{ width: "500px" }}>
                 <Input
                     size="sm"
                     value={inputSearchValue}
                     onChange={(event) => setInputSearchValue(event.target.value)}
                     placeholder="Search users..."
+                    autoFocus // Ensure input focuses on initial render
                 />
             </FormControl>
             <Button
                 variant="solid"
                 color="primary"
                 startDecorator={<Search />}
-                onClick={() => {
-                    setSearchValue(inputSearchValue);
-                    setPage(0);
-                }}
+                onClick={() => setSearchValue(inputSearchValue)}
             >
                 Search
             </Button>
         </Box>
-    );
+    ));
 
     return (
         <Stack spacing={2}>
@@ -221,119 +224,124 @@ const UserList = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {filteredUsers.length > 0 ? (
-                            filteredUsers.map((user, index) => (
-                                <TableRow key={index}>
-                                    <TableCell>{index + 1}</TableCell>
-                                    <TableCell>
-                                        <Typography
-                                            endDecorator={
-                                                <Chip size="sm" color="primary" variant="soft">
-                                                    {user.role}
-                                                </Chip>
-                                            }
-                                        >
-                                            {user.fullname}
-                                        </Typography>
-                                    </TableCell>
-                                    <TableCell>{user.email}</TableCell>
-                                    <TableCell>
-                                        <Stack direction="row" spacing={1}>
-                                            {/* Dropdown for role change */}
-                                            <Dropdown>
-                                                <Tooltip title="Set role..." arrow>
-                                                    <MenuButton
-                                                        slots={{
-                                                            root: IconButton,
-                                                        }}
-                                                        variant="plain"
-                                                        color="neutral"
-                                                        onClick={() => setSelectedUserId(user._id)}
-                                                    >
-                                                        <PeopleAlt />
-                                                    </MenuButton>
-                                                </Tooltip>
-                                                <Menu>
-                                                    <MenuItem
-                                                        selected={user.role === "admin"}
-                                                        onClick={() => {
-                                                            setOpenRoleChangeConfirm(true);
-                                                            setUserRole("admin");
-                                                        }}
-                                                    >
-                                                        Admin
-                                                    </MenuItem>
-                                                    <MenuItem
-                                                        selected={user.role === "student"}
-                                                        onClick={() => {
-                                                            setOpenRoleChangeConfirm(true);
-                                                            setUserRole("student");
-                                                        }}
-                                                    >
-                                                        Student
-                                                    </MenuItem>
-                                                    <MenuItem
-                                                        selected={user.role === "teacher"}
-                                                        onClick={() => {
-                                                            setOpenRoleChangeConfirm(true);
-                                                            setUserRole("teacher");
-                                                        }}
-                                                    >
-                                                        Teacher
-                                                    </MenuItem>
-                                                </Menu>
-                                                <ConfirmRoleChangeModal
-                                                    open={openRoleChangeConfirm}
-                                                    setOpen={setOpenRoleChangeConfirm}
-                                                    userId={selectedUserId}
-                                                />
-                                            </Dropdown>
-
-                                            {/* Button for user deletion */}
-                                            <Tooltip title="Delete" arrow>
-                                                <Box>
-                                                    <IconButton
-                                                        variant="plain"
-                                                        color="danger"
-                                                        onClick={() => {
-                                                            setSelectedUserId(user._id);
-                                                            setOpenDeleteConfirm(true);
-                                                        }}
-                                                    >
-                                                        <DeleteForever />
-                                                    </IconButton>
-                                                    <ConfirmDeleteModal
-                                                        open={openDeleteConfirm}
-                                                        setOpen={setOpenDeleteConfirm}
-                                                        userId={selectedUserId}
-                                                    />
-                                                </Box>
-                                            </Tooltip>
-                                        </Stack>
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        ) : (
-                            // Display a message when no users match the search criteria
-                            <TableRow>
-                                <TableCell colSpan={4}>
-                                    <Typography color="text.secondary">
-                                        No user matches...
+                    {currentTableData.length > 0 ? (
+                        currentTableData.map((user, index) => (
+                            <TableRow key={user._id}>
+                                <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+                                <TableCell>
+                                    <Typography
+                                        endDecorator={
+                                            <Chip size="sm" color="primary" variant="soft">
+                                                {user.role}
+                                            </Chip>
+                                        }
+                                    >
+                                        {user.fullname}
                                     </Typography>
                                 </TableCell>
+                                <TableCell>{user.email}</TableCell>
+                                <TableCell>
+                                                        <Stack direction="row" spacing={1}>
+                                                            {/* Dropdown for role change */}
+                                                            <Dropdown>
+                                                                <Tooltip title="Set role..." arrow>
+                                                                    <MenuButton
+                                                                        slots={{
+                                                                            root: IconButton,
+                                                                        }}
+                                                                        variant="plain"
+                                                                        color="neutral"
+                                                                        onClick={() => setSelectedUserId(user._id)}
+                                                                    >
+                                                                        <PeopleAlt />
+                                                                    </MenuButton>
+                                                                </Tooltip>
+                                                                <Menu>
+                                                                    <MenuItem
+                                                                        selected={user.role === "admin"}
+                                                                        onClick={() => {
+                                                                            setOpenRoleChangeConfirm(true);
+                                                                            setUserRole("admin");
+                                                                        }}
+                                                                    >
+                                                                        Admin
+                                                                    </MenuItem>
+                                                                    <MenuItem
+                                                                        selected={user.role === "student"}
+                                                                        onClick={() => {
+                                                                            setOpenRoleChangeConfirm(true);
+                                                                            setUserRole("student");
+                                                                        }}
+                                                                    >
+                                                                        Student
+                                                                    </MenuItem>
+                                                                    <MenuItem
+                                                                        selected={user.role === "teacher"}
+                                                                        onClick={() => {
+                                                                            setOpenRoleChangeConfirm(true);
+                                                                            setUserRole("teacher");
+                                                                        }}
+                                                                    >
+                                                                        Teacher
+                                                                    </MenuItem>
+                                                                </Menu>
+                                                                <ConfirmRoleChangeModal
+                                                                    open={openRoleChangeConfirm}
+                                                                    setOpen={setOpenRoleChangeConfirm}
+                                                                    userId={selectedUserId}
+                                                                />
+                                                            </Dropdown>
+
+                                                            {/* Button for user deletion */}
+                                                            <Tooltip title="Delete" arrow>
+                                                                <Box>
+                                                                    <IconButton
+                                                                        variant="plain"
+                                                                        color="danger"
+                                                                        onClick={() => {
+                                                                            setSelectedUserId(user._id);
+                                                                            setOpenDeleteConfirm(true);
+                                                                        }}
+                                                                    >
+                                                                        <DeleteForever />
+                                                                    </IconButton>
+                                                                    <ConfirmDeleteModal
+                                                                        open={openDeleteConfirm}
+                                                                        setOpen={setOpenDeleteConfirm}
+                                                                        userId={selectedUserId}
+                                                                    />
+                                                                </Box>
+                                                            </Tooltip>
+                                                        </Stack>
+                                                    </TableCell>
                             </TableRow>
-                        )}
-                    </TableBody>
+                        ))
+                    ) : (
+                        <TableRow>
+                            <TableCell colSpan={4}>
+                                <Typography color="text.secondary">
+                                    No user matches...
+                                </Typography>
+                            </TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+
                     <TableFooter>
                         <TableRow>
-                            <TablePagination
-                                colSpan={4}
-                                rowsPerPageOptions={[]}
-                                count={filteredUsers.length}
-                                page={page}
-                                rowsPerPage={10}
-                                onPageChange={(event, newPage) => setPage(newPage)}
-                            />
+                        <TablePagination
+                            colSpan={4}
+                            rowsPerPageOptions={[5, 10, 25]}  // Allow users to select how many rows they want to see
+                            count={filteredUsers.length}  // Total number of filtered users
+                            page={page}
+                            rowsPerPage={rowsPerPage}
+                            onPageChange={(event, newPage) => setPage(newPage)}
+                            onRowsPerPageChange={(event) => {
+                                setRowsPerPage(parseInt(event.target.value, 10));
+                                setPage(0);  // Reset to the first page after changing the number of rows per page
+                            }}
+                        />
+
                         </TableRow>
                     </TableFooter>
                 </Table>
