@@ -12,17 +12,20 @@ const routes = [
     {
         name: "Data Dashboard",
         key: "datadashboard",
+        role: "",
         icon: <SpaceDashboardIcon />,
         route: "/data",
     },
     {
         name: "Iot Dashboard",
         key: "iotdashboard",
+        role: "",
         icon: <RouterIcon />,
         route: "/iot",
     },
     {
         name: "Admin Dashboard",
+        role: "admin",
         key: "admindashboard",
         icon: <ManageAccountsIcon />,
         route: "/admin",

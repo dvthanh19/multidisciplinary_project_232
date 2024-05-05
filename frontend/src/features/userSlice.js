@@ -12,6 +12,7 @@ export const userSlice = createSlice({
   },
   reducers: {
     setUser: (state, action) => {
+      console.log('Setting user:', action.payload);
       state._id = action.payload._id;
       state.email = action.payload.email;
       state.fullname = action.payload.fullname;

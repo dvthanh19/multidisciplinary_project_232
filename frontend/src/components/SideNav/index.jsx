@@ -90,16 +90,19 @@ const SideNav = ({ focusOnRouteID }) => {
                 </ListItem>
                 <Divider orientation="horizontal" sx={{ my: 3 }} />
 
-                {routes.map((route) => (
-                    <ListItem  key={route.key}>
-                        <ListItemButton onClick={ () => navigate(route.route) } selected={focusOnRouteID === route.key}>
-                            <ListItemDecorator sx={{ color: "neutral.solidBg" }}>
-                                {route.icon}
-                            </ListItemDecorator>
-                            {route.name}
-                        </ListItemButton>
-                    </ListItem>
-                ))}
+                {routes.filter(route => {
+    // Show all routes that don't require admin privileges or check for admin role
+    return route.key !== "admindashboard" || userData.role === "admin";
+}).map((route) => (
+    <ListItem key={route.key}>
+        <ListItemButton onClick={() => navigate(route.route)} selected={focusOnRouteID === route.key}>
+            <ListItemDecorator sx={{ color: "neutral.solidBg" }}>
+                {route.icon}
+            </ListItemDecorator>
+            {route.name}
+        </ListItemButton>
+    </ListItem>
+))}
             </List>
         </Box>
     );

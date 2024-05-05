@@ -4,9 +4,15 @@ const jwt=require('jsonwebtoken')
 require('dotenv').config();
 const jwtSecret = process.env.JWT_SECRET;
 
+const LoginData = require('../models/login.model.js');
+
 const Login = async (req, res) => {
     try {
         const user = await User.findOne({email: req.body.email});
+        let loginRecord = {
+            successful: false,
+            ipAddress: req.ip 
+        };
         if (!user) {
             return res.status(400).json({message: 'User not found'});
         }
@@ -16,6 +22,10 @@ const Login = async (req, res) => {
             return res.status(400).json({message: 'Invalid password'});
         }
 
+        loginRecord.successful = true;
+        loginRecord.userId = user._id;
+        await LoginData.create(loginRecord);  // Changed here
+
         const token = jwt.sign({_id: user._id}, jwtSecret , { expiresIn: '1h' }); // Expires in 1 hour
         return res.status(200).json({ token, user: { id: user._id, email: user.email } });
     } catch (error) {
@@ -23,7 +33,7 @@ const Login = async (req, res) => {
         res.status(500).json({message: error.message});
     }
 };
-// get user info with token
+
 const Me = async (req, res) => {
     try {
         

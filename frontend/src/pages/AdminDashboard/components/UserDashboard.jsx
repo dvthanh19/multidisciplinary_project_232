@@ -183,7 +183,7 @@ const UserDashboard = () => {
         <Stack direction="column" spacing={2}>
             <TotalUsers />
             <UserRoles />
-            {/* <LoginIntensity /> */}
+            <LoginIntensity />
         </Stack>
     );
 };
