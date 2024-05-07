@@ -264,7 +264,7 @@ const DeviceDetailModal = ({ deviceId }) => {
                                 onChange={handleActionTypeChange}
                                 sx={{ minWidth: 200 }}
                             >
-                                <Option value="a">Action A (Turn Off)</Option>
+                                <Option value="a">Action A (Reduce Power)</Option>
                                 <Option value="b">Action B (Notify)</Option>
                                 <Option value="c">Action C (Reduce Power)</Option>
                             </Select>
@@ -293,7 +293,7 @@ const DeviceDetailModal = ({ deviceId }) => {
         const ADAFRUIT_IO_KEY = "aio_HQHl865UcZU9BnFNjemUKCfwh7Vx";
         try {
             const url = `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/${deviceDetailRef.current.deviceID}/data`;
-            const response = await axios.post(url, { value: "0" }, {
+            const response = await axios.post(url, { value: "50" }, {
                 headers: {
                     "Content-Type": "application/json",
                     "X-AIO-Key": ADAFRUIT_IO_KEY,
@@ -323,7 +323,7 @@ const DeviceDetailModal = ({ deviceId }) => {
                                                     handleActionTypeChange={handleActionTypeChange}
                                                     handleThresholdChange={handleThresholdChange}
                                                     addNewAction={addNewAction} />
-                            <ScheduleSection />
+                            {/* <ScheduleSection /> */}
                         </Stack>
                     </DialogContent>
                 </Box>
