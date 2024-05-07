@@ -227,6 +227,12 @@ const DeviceDetailModal = ({ deviceId }) => {
             actions.forEach(action => {
                 if (sliderValue >= Number(action.threshold)) {
                     if (action.actionType === 'a') {
+                        turnDeviceDown();
+                    }
+                    else if (action.actionType === 'b') {
+                        notifyDevice();
+                    }
+                    else if (action.actionType === 'c') {
                         turnDeviceOff();
                     }
                     // Add other actions like notify or reduce power here
@@ -266,7 +272,7 @@ const DeviceDetailModal = ({ deviceId }) => {
                             >
                                 <Option value="a">Action A (Reduce Power)</Option>
                                 <Option value="b">Action B (Notify)</Option>
-                                <Option value="c">Action C (Reduce Power)</Option>
+                                <Option value="c">Action C (Turn Off)</Option>
                             </Select>
                             <Typography> on value </Typography>
                             <Input
@@ -288,7 +294,7 @@ const DeviceDetailModal = ({ deviceId }) => {
             </Stack>
         );
     };
-    const turnDeviceOff = async () => {
+    const turnDeviceDown = async () => {
         const ADAFRUIT_IO_USERNAME = "1zy";
         const ADAFRUIT_IO_KEY = "aio_HQHl865UcZU9BnFNjemUKCfwh7Vx";
         try {
@@ -302,11 +308,34 @@ const DeviceDetailModal = ({ deviceId }) => {
             setSnackbarMessage('Device turned off due to threshold breach!');
             setOpenSnackbar(true);
         } catch (error) {
-            console.error("Failed to turn off the device:", error);
+            console.error("Failed to turn down the device:", error);
             setSnackbarMessage('Failed to turn off the device.');
             setOpenSnackbar(true);
         }
     };
+    const turnDeviceOff= async () => {
+        const ADAFRUIT_IO_USERNAME = "1zy";
+        const ADAFRUIT_IO_KEY = "aio_HQHl865UcZU9BnFNjemUKCfwh7Vx";
+        try {
+            const url = `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/${deviceDetailRef.current.deviceID}/data`;
+            const response = await axios.post(url, { value: "0" }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-AIO-Key": ADAFRUIT_IO_KEY,
+                }
+            });
+            setSnackbarMessage('Device turned off due to threshold breach!');
+            setOpenSnackbar(true);
+        } catch (error) {
+            console.error("Failed to turn down the device:", error);
+            setSnackbarMessage('Failed to turn off the device.');
+            setOpenSnackbar(true);
+        }
+    };
+    const notifyDevice = async () => {
+        setSnackbarMessage('Notification sent due to threshold breach!');
+        setOpenSnackbar(true);
+    }
     
 
     return (
