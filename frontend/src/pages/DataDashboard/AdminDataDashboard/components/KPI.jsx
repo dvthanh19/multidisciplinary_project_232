@@ -39,12 +39,38 @@ import {
     Subject,
     DataObject,
 } from "@mui/icons-material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { Line, Bar, Pie, Radar, Doughnut } from "react-chartjs-2";
+import { getConsumptionKPI } from "./functions/getConsumption";
+import computeCost from "./functions/computeCost";
+import getIssues from "./functions/getIssues";
 
 const CostKPI = () => {
     const [open, setOpen] = useState(false);
+
+    const [thisWeekCost, setThisWeekCost] = useState(0.0);
+    const [deltaCost, setDeltaCost] = useState(0.0);
+
+    const loadsFigures = async () => {
+        const [thisWeekKWH, ignore, lastWeekConsump, lastOfLastWeekConsump] =
+            await getConsumptionKPI();
+        const vnd = await computeCost(thisWeekKWH);
+        const dollar = vnd / 25000.0;
+        setThisWeekCost(dollar);
+
+        const lastWeekVND = await computeCost(lastWeekConsump);
+        const lastOfLastWeekVND = await computeCost(lastOfLastWeekConsump);
+        const deltaCost =
+            1.0 -
+            (lastWeekVND - lastOfLastWeekVND) /
+                (lastWeekVND + lastOfLastWeekVND);
+        setDeltaCost(deltaCost);
+    };
+
+    useEffect(() => {
+        loadsFigures();
+    }, []);
 
     const DetailModal = ({ open, setOpen }) => {
         const dataDaily = {
@@ -92,45 +118,6 @@ const CostKPI = () => {
                 },
             },
         };
-
-        /**
-         * API cua EVN de tinh gia dien (dua tren kWh)
-         * Trang web cua ENV:
-         * https://www.evn.com.vn/c3/calc/Cong-cu-tinh-hoa-don-tien-dien-9-172.aspx
-         * 
-         * API cua EVN:
-         * `POST https://calc.evn.com.vn/TinhHoaDon/api/Calculate`
-         * request body (vi du):
-         * `{
-                "KIMUA_CSPK": "0",
-                "LOAI_DDO": "1",
-                "SO_HO": 1,
-                "MA_CAPDAP": "1",
-                "NGAY_DKY": "03/05/2024",
-                "NGAY_CKY": "03/06/2024",
-                "NGAY_DGIA": "01/01/1900",
-                "HDG_BBAN_APGIA": [
-                    {
-                        "LOAI_BCS": "KT",
-                        "TGIAN_BANDIEN": "KT",
-                        "MA_NHOMNN": "SHBT",
-                        "MA_NGIA": "A"
-                    }
-                ],
-                "GCS_CHISO": [
-                    {
-                        "BCS": "KT",
-                        "SAN_LUONG": "130", <------- kWh, chac minh chi can doi cai nay thoi la ok!
-                        "LOAI_CHISO": "DDK"
-                    }
-                ]
-            }`
-         * Giu nguyen cai format cua request body tren, chi can thay doi key "SAN_LUONG"
-         * 
-         * Ve response body cua no, minh khong can quan tam cac key khac, chi can quan tam duy
-         * nhat 1 key `SO_TIEN`
-         * Data["HDN_HDON"]["SO_TIEN"] --> trich xuat gia tri nay ra la co computed Cost
-         */
 
         return (
             <Modal open={open}>
@@ -211,10 +198,15 @@ const CostKPI = () => {
                     Cost this week
                 </Typography>
                 <Typography level="h1" textAlign="center">
-                    $1270{" "}
+                    ${thisWeekCost.toFixed(2)}{" "}
                 </Typography>
-                <Typography level="body-lg" color="success" textAlign="center">
-                    +96.2%{" "}
+                <Typography
+                    level="body-lg"
+                    color={deltaCost > 0 ? "danger" : "success"}
+                    textAlign="center"
+                >
+                    {deltaCost > 0 ? "+" : "-"}
+                    {(deltaCost * 100).toFixed(2)}%{" "}
                     <Typography level="body-sm" color="neutral">
                         since last week
                     </Typography>
@@ -227,6 +219,21 @@ const CostKPI = () => {
 
 const EnergyConsumptionKPI = () => {
     const [open, setOpen] = useState(false);
+
+    const [thisWeekConsump, setThisWeekConsump] = useState(0.0);
+    const [deltaLastWeekConsump, setDeltaLastWeekConsump] = useState(0.0);
+
+    const loadsFigures = async () => {
+        const [thisWeekConsumption, deltaLastWeekConsumption, a, b] =
+            await getConsumptionKPI();
+
+        setThisWeekConsump(thisWeekConsumption);
+        setDeltaLastWeekConsump(deltaLastWeekConsumption);
+    };
+
+    useEffect(() => {
+        loadsFigures();
+    }, []);
 
     const DetailModal = ({ open, setOpen }) => {
         const dataDaily = {
@@ -348,14 +355,19 @@ const EnergyConsumptionKPI = () => {
                     Energy this week
                 </Typography>
                 <Typography level="h1" textAlign="center">
-                    19.6
+                    {thisWeekConsump.toFixed(2)}
                     <Typography level="title-lg" color="neutral">
                         {" "}
                         kWh
                     </Typography>
                 </Typography>
-                <Typography level="body-lg" color="success" textAlign="center">
-                    +22.5%{" "}
+                <Typography
+                    level="body-lg"
+                    color={deltaLastWeekConsump > 0 ? "danger" : "success"}
+                    textAlign="center"
+                >
+                    {deltaLastWeekConsump > 0 ? "+" : "-"}
+                    {(deltaLastWeekConsump * 100).toFixed(2)}%{" "}
                     <Typography level="body-sm" color="neutral">
                         since last week
                     </Typography>
@@ -368,6 +380,50 @@ const EnergyConsumptionKPI = () => {
 
 const DevicesStatusKPI = () => {
     const [open, setOpen] = useState(false);
+
+    const [allIssues, setIssues] = useState([]);
+    const [numberOfIssues, setNumberOfIssues] = useState(0);
+    const [yesterdayIssues, setYesterdayIssues] = useState(0);
+    const [numberOfCriticalIssues, setCriticalIssues] = useState(0);
+
+    const loadsFigures = async () => {
+        const getElapsedDays = (ref_date) => {
+            let date = new Date(ref_date);
+            // Chi Thu set data vay ko thay big day differences
+            // Nen ma dao bang cach tru them date tu date fetch ve
+            const today = new Date(Date.now());
+            date = new Date(date.setDate(date.getDate() - 3));
+            const deltaDate = Math.floor(
+                (today - date) / (1000 * 60 * 60 * 24)
+            );
+
+            return deltaDate;
+        };
+        let allIssues = await getIssues();
+        allIssues = allIssues.map((issue) => {
+            issue.elapsed = getElapsedDays(issue.date);
+            return issue;
+        });
+        setIssues(allIssues);
+        setNumberOfIssues(allIssues.length);
+
+        const elapsed = allIssues.map((issue) => {
+            return getElapsedDays(issue.date);
+        });
+        const numberOfYesterday = elapsed.filter((x) => {
+            return x == 1;
+        }).length;
+        setYesterdayIssues(numberOfYesterday);
+
+        const numberOfSevereIssues = allIssues.filter((issue) => {
+            return issue.severity == "High";
+        }).length;
+        setCriticalIssues(numberOfSevereIssues);
+    };
+
+    useEffect(() => {
+        loadsFigures();
+    }, []);
 
     const DetailModal = ({ open, setOpen }) => {
         const IssueList = () => {
@@ -395,54 +451,43 @@ const DevicesStatusKPI = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            <TableRow>
-                                <TableCell>1</TableCell>
-                                <TableCell>
-                                    <Chip color="danger" size="sm">
-                                        Critical
-                                    </Chip>
-                                </TableCell>
-                                <TableCell>2 days ago</TableCell>
-                                <TableCell>Quạt</TableCell>
-                                <TableCell>B4-101</TableCell>
-                                <TableCell sx={{maxWidth: "20vw", overflow: "scroll"}}>
-                                    "oH NO please help, device is down!" This
-                                    field can be empty. 
-                                </TableCell>
-                                <TableCell>
-                                    <Checkbox onClick={() => alert("Once clicked complete, issue 'resolved' flag is sent to the backend, and this table row is removed from UI.")} color="primary" />
-                                </TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>1</TableCell>
-                                <TableCell>
-                                    <Chip color="warning" size="sm">
-                                        Adequate
-                                    </Chip>
-                                </TableCell>
-                                <TableCell>2 days ago</TableCell>
-                                <TableCell>Đèn</TableCell>
-                                <TableCell>B4-101</TableCell>
-                                <TableCell></TableCell>
-                                <TableCell>
-                                <Checkbox onClick={() => alert("Once clicked complete, issue 'resolved' flag is sent to the backend, and this table row is removed from UI.")} color="primary" />
-                                </TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>1</TableCell>
-                                <TableCell>
-                                    <Chip color="warning" size="sm">
-                                        Low
-                                    </Chip>
-                                </TableCell>
-                                <TableCell>14 days ago</TableCell>
-                                <TableCell>Đèn</TableCell>
-                                <TableCell>B6-101</TableCell>
-                                <TableCell></TableCell>
-                                <TableCell>
-                                <Checkbox onClick={() => alert("Once clicked complete, issue 'resolved' flag is sent to the backend, and this table row is removed from UI.")} color="primary" />
-                                </TableCell>
-                            </TableRow>
+                            {allIssues.map((issue, idx) => (
+                                <TableRow>
+                                    <TableCell>{idx + 1}</TableCell>
+                                    <TableCell>
+                                        <Chip color="danger" size="sm">
+                                            {issue.severity}
+                                        </Chip>
+                                    </TableCell>
+                                    <TableCell>
+                                        {issue.elapsed} days ago
+                                    </TableCell>
+                                    <TableCell>{issue.device}</TableCell>
+                                    <TableCell>{issue.location}</TableCell>
+                                    <TableCell
+                                        sx={{
+                                            maxWidth: "20vw",
+                                            overflow: "scroll",
+                                        }}
+                                    >
+                                        {issue.feedback}
+                                    </TableCell>
+                                    <TableCell>
+                                        <Checkbox
+                                            onClick={() =>
+                                                setIssues(
+                                                    allIssues.filter(
+                                                        (ref_issue) =>
+                                                            ref_issue.number !=
+                                                            issue.number
+                                                    )
+                                                )
+                                            }
+                                            color="primary"
+                                        />
+                                    </TableCell>
+                                </TableRow>
+                            ))}
                         </TableBody>
                     </Table>
                 </TableContainer>
@@ -507,18 +552,18 @@ const DevicesStatusKPI = () => {
                     Unhandled Issues
                 </Typography>
                 <Typography level="h1" textAlign="center">
-                    14
+                    {numberOfIssues}
                 </Typography>
                 <Typography level="body-lg" textAlign="center">
                     <Typography color="success">
-                        +2{" "}
+                        +{yesterdayIssues}{" "}
                         <Typography level="body-sm" color="neutral">
                             yesterday
                         </Typography>
                     </Typography>
                     ,{" "}
                     <Typography color="danger">
-                        4{" "}
+                        {numberOfCriticalIssues}{" "}
                         <Typography level="body-sm" color="neutral">
                             critical
                         </Typography>
