@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef, useCallback, memo  } from 'react';
 import axios from "axios";
 import { Dialog, DialogTitle, DialogContent } from "@mui/material";
 import {
@@ -246,7 +246,7 @@ const DeviceDetailModal = ({ deviceId }) => {
             setOpenSnackbar(true);
         }
     };
-    const ThresholdActionSection = ({
+    const ThresholdActionSection = memo(({
         actions,
         setActions,
         newAction,
@@ -254,20 +254,24 @@ const DeviceDetailModal = ({ deviceId }) => {
         handleActionTypeChange,
         handleThresholdChange,
         addNewAction,
-        
     }) => {
+        // Use useCallback to memoize the handlers
+        const memoizedHandleActionTypeChange = useCallback(handleActionTypeChange, []);
+        const memoizedHandleThresholdChange = useCallback(handleThresholdChange, []);
+        const memoizedAddNewAction = useCallback(addNewAction, []);
+    
         return (
             <Stack direction="column">
-                <Typography level="h3">Threshold action 1 </Typography>
+                <Typography level="h3">Threshold action 1</Typography>
                 <Card>
                     <Stack direction="row" justifyContent="space-between" alignItems="center">
                         <Stack direction="row" spacing={2} alignItems="center">
-                            <Typography>Trigger </Typography>
+                            <Typography>Trigger</Typography>
                             <Select
                                 placeholder="Select an action"
                                 name="foo"
                                 value={newAction.actionType}
-                                onChange={handleActionTypeChange}
+                                onChange={memoizedHandleActionTypeChange}
                                 sx={{ minWidth: 200 }}
                             >
                                 <Option value="a">Action A (Reduce Power)</Option>
@@ -280,10 +284,10 @@ const DeviceDetailModal = ({ deviceId }) => {
                                 placeholder="value..."
                                 type="number"
                                 value={newAction.threshold}
-                                onChange={handleThresholdChange}
+                                onChange={memoizedHandleThresholdChange}
                             ></Input>
                         </Stack>
-                        <Button startDecorator={<AddIcon />} size="sm" onClick={addNewAction}>
+                        <Button startDecorator={<AddIcon />} size="sm" onClick={memoizedAddNewAction}>
                             Add Action
                         </Button>
                     </Stack>
@@ -293,7 +297,8 @@ const DeviceDetailModal = ({ deviceId }) => {
                 </Card>
             </Stack>
         );
-    };
+    });
+    
     const turnDeviceDown = async () => {
         const ADAFRUIT_IO_USERNAME = "1zy";
         const ADAFRUIT_IO_KEY = "aio_HQHl865UcZU9BnFNjemUKCfwh7Vx";
@@ -305,11 +310,11 @@ const DeviceDetailModal = ({ deviceId }) => {
                     "X-AIO-Key": ADAFRUIT_IO_KEY,
                 }
             });
-            setSnackbarMessage('Device turned off due to threshold breach!');
+            setSnackbarMessage('Device reduce intensity due to threshold breach!');
             setOpenSnackbar(true);
         } catch (error) {
             console.error("Failed to turn down the device:", error);
-            setSnackbarMessage('Failed to turn off the device.');
+            setSnackbarMessage('Failed to reduce intensity of the device.');
             setOpenSnackbar(true);
         }
     };
