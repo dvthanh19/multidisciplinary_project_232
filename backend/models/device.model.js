@@ -30,6 +30,10 @@ const deviceSchema = new mongoose.Schema({
     schedule: {
         type: Object,
         required: false
+    },
+    c_num:{
+        type: Number,
+        required: false
     }
  });
 

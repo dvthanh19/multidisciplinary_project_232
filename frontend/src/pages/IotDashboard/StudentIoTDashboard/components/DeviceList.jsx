@@ -107,6 +107,7 @@ const DeviceList = ({ type }) => {
                                                     name={device.name}
                                                     type={device.type}
                                                     position={device.position}
+                                                    schedule={device.schedule}
                                                 />
                                             </Grid>
                                         ))}

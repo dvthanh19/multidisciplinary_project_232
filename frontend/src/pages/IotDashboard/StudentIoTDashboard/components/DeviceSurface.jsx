@@ -13,7 +13,7 @@ import EventIcon from "@mui/icons-material/Event";
 import "chart.js";
 import axios from "axios";
 
-const DeviceSurface = ({ id, deviceID, name, type, position }) => {
+const DeviceSurface = ({ id, deviceID, name, type, position,schedule }) => {
     const [deviceOn, setDeviceOn] = useState(true);
     const [logData, setLogData] = useState([]);
     const [filterFromDateValue, setFilterFromDateValue] = useState("");
@@ -157,17 +157,21 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
                     </IconButton>
                 </Stack>
                 <Stack direction="column">
+                {schedule && schedule.entries && (
                     <Stack direction="column">
                         <Typography
                             startDecorator={<EventIcon />}
                             level="title-sm"
                         >
-                            Current session
+                            Schedule
                         </Typography>
-                        <Typography level="body-sm" color="success">
-                            14:00 - 16:00, Aug 14, 2023
-                        </Typography>
+                        {schedule.entries.map((entry, index) => (
+                            <Typography key={index} level="body-sm" color="success">
+                                {entry.time} - {entry.action}
+                            </Typography>
+                        ))}
                     </Stack>
+                )}
                 </Stack>
             </Stack>
         </Card>

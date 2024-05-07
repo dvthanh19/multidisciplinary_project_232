@@ -32,6 +32,7 @@ app.use("/api/device", require("./routes/device.route.js"));
 
 app.use("/api/stat", require("./routes/stat.route.js"));
 
+app.use("/api/issue", require("./routes/issue.route.js"));
 
 const mongoose = require('mongoose')
 mongoose.connect('mongodb+srv://nguyenquocminhthu:Cacao2772002.@cluster0.v8ncnba.mongodb.net/SmartClass?retryWrites=true&w=majority&appName=Cluster0')

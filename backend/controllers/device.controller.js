@@ -112,6 +112,7 @@ const fetchCurrentValueFromAdafruit = async (feedKey) => {
         throw new Error('Unable to fetch current value from Adafruit');
     }
 };
+ 
 
 
 module.exports = {
