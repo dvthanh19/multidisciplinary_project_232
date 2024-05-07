@@ -112,6 +112,11 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
                     value: parseFloat(response.data.value) !== 50 ? "50" : "0",
                 };
             } 
+            else if  (deviceID.toLowerCase() === "led") {
+                // For fan, either set to '50' or '0' based on current state
+                newValue = {
+                    value: parseFloat(response.data.value) !== 100 ? "100" : "0",
+                };}
 
             else {
                 // For other devices, toggle between '0' and '1'
