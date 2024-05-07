@@ -61,7 +61,9 @@ const DeviceList = ({ type }) => {
                 const response = await axios.get(
                     "http://localhost:3000/api/device/"
                 );
-                const devices = filterDeviceTypes(response.data.device, type);
+                let devices = filterDeviceTypes(response.data.device, type);
+                // Exclude the device with deviceID 'led2'
+                devices= devices.filter(device => device.deviceID !== "led2");
 
                 // Assuming active is determined by curValue presence
                 setDevices(filterDeviceTypes(devices, type));

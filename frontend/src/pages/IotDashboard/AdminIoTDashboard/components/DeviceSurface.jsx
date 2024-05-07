@@ -106,12 +106,14 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
             });
 
             let newValue;
-            if (deviceID.toLowerCase() === "fan") {
+            if (deviceID.toLowerCase() === "fan" ) {
                 // For fan, either set to '50' or '0' based on current state
                 newValue = {
                     value: parseFloat(response.data.value) !== 50 ? "50" : "0",
                 };
-            } else {
+            } 
+
+            else {
                 // For other devices, toggle between '0' and '1'
                 newValue = {
                     value: parseFloat(response.data.value) === 0 ? "1" : "0",
