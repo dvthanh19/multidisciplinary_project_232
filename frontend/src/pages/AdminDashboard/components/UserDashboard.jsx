@@ -102,80 +102,131 @@ const UserRoles = () => {
 };
 
 const LoginIntensity = () => {
-    const fakeLoginData = {
-        labels: ["0:00", "3:00", "6:00", "9:00", "12:00", "14:00", "16:00"],
-        datasets: [
-            {
-                label: "Number of logins",
-                data: [65, 59, 80, 81, 56, 55, 40],
-                fill: false,
-                tension: 0.1,
-            },
-        ],
-    };
+    // State for the fetched data
+    const [loginData, setLoginData] = useState({
+        labels: [],
+        datasets: [],
+    });
+    const [averagePerHour, setAveragePerHour] = useState(0);
+    const [lastPeak, setLastPeak] = useState({ time: "", logins: 0 });
 
     const [open, setOpen] = useState(false);
 
-    const DetailModal = ({ open, setOpen }) => {
-        return (
-            <Modal open={open}>
-                <ModalDialog minWidth={500}>
-                    <DialogTitle>
-                        <Stack
-                            direction="row"
-                            justifyContent="space-between"
-                            alignItems="center"
-                        >
-                            <Typography level="title-lg">
-                                Daily login distribution
-                            </Typography>
-                            <Button
-                                variant="plain"
-                                onClick={() => setOpen(false)}
-                            >
-                                Done
-                            </Button>
-                        </Stack>
-                    </DialogTitle>
-                    <DialogContent>
-                        <Stack direction="column" spacing={1}>
-                            <Bar data={fakeLoginData} />
-                            <Typography level="body-lg">
-                                Average per hour:{" "}
-                                <Typography color="primary" variant="solid">
-                                    12.7
-                                </Typography>
-                            </Typography>
-                            <Typography level="body-lg">
-                                Last peak:{" "}
-                                <Typography color="primary" variant="solid">
-                                    16400
-                                </Typography>{" "}
-                                {/* an_ammount_of_login_that_exceeds_every_other_amount */}
-                                at <Chip color="primary">16:20 30/04/1975</Chip>
-                            </Typography>
-                        </Stack>
-                    </DialogContent>
-                </ModalDialog>
-            </Modal>
-        );
-    };
+    // Fetch data from backend
+    useEffect(() => {
+        // Fetch login attempts by hour data
+        const fetchLoginData = async () => {
+            try {
+                const response = await axios.get('http://localhost:3000/api/stat/login-attempts-by-hour');
+                const stats = response.data;
+
+                const labels = stats.map(item => `${item._id}:00`);
+                const data = stats.map(item => item.totalLogins);
+
+                setLoginData({
+                    labels,
+                    datasets: [
+                        {
+                            label: "Number of logins",
+                            data,
+                            fill: false,
+                            tension: 0.1,
+                            backgroundColor: "rgba(75, 192, 192, 0.2)",
+                            borderColor: "rgba(75, 192, 192, 1)",
+                        },
+                    ],
+                });
+            } catch (error) {
+                console.error("Error fetching login data:", error);
+            }
+        };
+
+        // Fetch average logins per hour data
+        const fetchAveragePerHour = async () => {
+            try {
+                const response = await axios.get('http://localhost:3000/api/stat/average-logins-per-hour');
+                const { average } = response.data;
+                setAveragePerHour(average);
+            } catch (error) {
+                console.error("Error fetching average logins per hour:", error);
+            }
+        };
+
+        // Fetch peak login time data
+        const fetchPeakLoginTime = async () => {
+            try {
+                const response = await axios.get('http://localhost:3000/api/stat/peak-login-time');
+                const { peakTime, logins } = response.data;
+                setLastPeak({ time: peakTime, logins });
+            } catch (error) {
+                console.error("Error fetching peak login time:", error);
+            }
+        };
+
+        fetchLoginData();
+        fetchAveragePerHour();
+        fetchPeakLoginTime();
+    }, []);
+
+    // DetailModal component
+    const DetailModal = ({ open, setOpen }) => (
+        <Modal open={open}>
+            <ModalDialog minWidth={500}>
+                <DialogTitle>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                        <Typography level="title-lg">Daily login distribution</Typography>
+                        <Button variant="plain" onClick={() => setOpen(false)}>Done</Button>
+                    </Stack>
+                </DialogTitle>
+                <DialogContent>
+                    <Stack direction="column" spacing={1}>
+                        <Bar data={loginData} />
+                        <Typography level="body-lg">Average per hour: 
+                            <Typography color="primary" variant="solid">{averagePerHour}</Typography>
+                        </Typography>
+                        <Typography level="body-lg">Last peak: 
+                            <Typography color="primary" variant="solid">{lastPeak.logins}</Typography> at
+                            <Chip color="primary">{lastPeak.time}</Chip>
+                        </Typography>
+                    </Stack>
+                </DialogContent>
+            </ModalDialog>
+        </Modal>
+    );
+
+    if (!loginData.labels.length) {
+        return <Card>Loading...</Card>;
+    }
 
     return (
         <Card>
             <Stack direction="column" spacing={1}>
                 <Stack direction="column">
-                    <Typography level="title-lg">
-                        Daily login distribution
-                    </Typography>
+                    <Typography level="title-lg">Daily login distribution</Typography>
                     <Typography level="body-sm">*averaged weekly</Typography>
                 </Stack>
-                <Bar onClick={() => setOpen(true)} data={fakeLoginData} />
+                <Bar data={loginData} onClick={() => setOpen(true)} />
             </Stack>
             <DetailModal open={open} setOpen={setOpen} />
         </Card>
     );
 };
+
+//     return (
+//         <Card>
+//             <Stack direction="column" spacing={1}>
+//                 <Stack direction="column">
+//                     <Typography level="title-lg">
+//                         Daily login distribution
+//                     </Typography>
+//                     <Typography level="body-sm">*averaged weekly</Typography>
+//                 </Stack>
+//                 <Bar onClick={() => setOpen(true)} data={fakeLoginData} />
+//             </Stack>
+//             <DetailModal open={open} setOpen={setOpen} />
+//         </Card>
+//     );
+// };
 
 
 const UserDashboard = () => {

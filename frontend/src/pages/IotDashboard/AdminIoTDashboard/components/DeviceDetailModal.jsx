@@ -206,7 +206,7 @@ const DeviceDetailModal = ({ deviceId }) => {
         const detail = deviceDetailRef.current;
         console.log("Saving changes for device:", detail);
         const ADAFRUIT_IO_USERNAME = "1zy";
-        const ADAFRUIT_IO_KEY = "aio_HQHl865UcZU9BnFNjemUKCfwh7Vx";
+        const ADAFRUIT_IO_KEY = "aio_Csiu15Rnws3r2rPqdCtv54ZwYUrW";
         const relevantIds = ["led", "fan"];
 
         try {
@@ -301,7 +301,7 @@ const DeviceDetailModal = ({ deviceId }) => {
     
     const turnDeviceDown = async () => {
         const ADAFRUIT_IO_USERNAME = "1zy";
-        const ADAFRUIT_IO_KEY = "aio_HQHl865UcZU9BnFNjemUKCfwh7Vx";
+        const ADAFRUIT_IO_KEY = "aio_Csiu15Rnws3r2rPqdCtv54ZwYUrW";
         try {
             const url = `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/${deviceDetailRef.current.deviceID}/data`;
             const response = await axios.post(url, { value: "50" }, {
@@ -320,7 +320,7 @@ const DeviceDetailModal = ({ deviceId }) => {
     };
     const turnDeviceOff= async () => {
         const ADAFRUIT_IO_USERNAME = "1zy";
-        const ADAFRUIT_IO_KEY = "aio_HQHl865UcZU9BnFNjemUKCfwh7Vx";
+        const ADAFRUIT_IO_KEY = "aio_Csiu15Rnws3r2rPqdCtv54ZwYUrW";
         try {
             const url = `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/${deviceDetailRef.current.deviceID}/data`;
             const response = await axios.post(url, { value: "0" }, {
