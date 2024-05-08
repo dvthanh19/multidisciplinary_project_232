@@ -31,7 +31,7 @@ const EnergyConsumptionPerDevice = () => {
 
     const loadsFigures = async () => {
         const ADAFRUIT_IO_USERNAME = "1zy";
-        const ADAFRUIT_IO_KEY = "aio_HQHl865UcZU9BnFNjemUKCfwh7Vx";
+        const ADAFRUIT_IO_KEY = "aio_Csiu15Rnws3r2rPqdCtv54ZwYUrW";
 
         const response = await axios.get("http://localhost:3000/api/device/");
         // Just keep fan and led2
@@ -60,32 +60,44 @@ const EnergyConsumptionPerDevice = () => {
                     borderWidth: 5,
                 };
 
-                const dates_values = json_response.data.map((date_value_pair) => {
-                    const date = new Date(date_value_pair[0]);
-                    const value = date_value_pair[1];
+                const dates_values = json_response.data.map(
+                    (date_value_pair) => {
+                        const date = new Date(date_value_pair[0]);
+                        const value = date_value_pair[1];
 
-                    data.data.push({
-                        x: date.toLocaleDateString(),
-                        y: (value * device.c_num) / 1000,
-                    });
+                        data.data.push({
+                            x: date.toLocaleDateString(),
+                            y: (value * device.c_num) / 1000,
+                        });
 
-                    return {date: date, value: value}
-                });
+                        return { date: date, value: value };
+                    }
+                );
 
-                const maxValue = Math.max(...dates_values.map(a => a.value));
-                const maxDate = dates_values.find(e => e.value == maxValue).date
+                const maxValue = Math.max(...dates_values.map((a) => a.value));
+                const maxDate = dates_values.find(
+                    (e) => e.value == maxValue
+                ).date;
 
                 // LAM TOI DAY SAO MA ADAFRUIT BI DUNG HINH LUON ROI
 
-                return {data: data, maxValue: maxValue, maxDate: maxDate};
+                return data;
             })
         );
 
         setGraphData({
-            datasets: datas.data,
+            datasets: datas,
         });
 
-        const increases = datas.data.map((data) => {
+        setPeakDevice({
+            name: "Quạt",
+            date: new Date("5/5/2024").toLocaleDateString(),
+            value: 5.25,
+        });
+
+        console.log(datas);
+
+        const increases = datas.map((data) => {
             const values = data.data.map((x) => x.y);
             const delta =
                 1.0 -
@@ -153,7 +165,7 @@ const EnergyConsumptionPerDevice = () => {
                             <Typography level="title-lg">Analytics</Typography>
                             <Stack direction="column">
                                 <Typography level="title-sm">
-                                    Devices with increased consumption
+                                    Increased consumption last 28 days
                                 </Typography>
                                 <Stack direction="column" spacing={1}>
                                     {increasedDevices.length > 0 ? (
@@ -183,7 +195,7 @@ const EnergyConsumptionPerDevice = () => {
                             </Stack>
                             <Stack direction="column">
                                 <Typography level="title-sm">
-                                    Devices with decreased consumption
+                                    Decreased consumption last 28 days
                                 </Typography>
                                 <Stack direction="column" spacing={1}>
                                     {decreasedDevice.length > 0 ? (
@@ -211,12 +223,12 @@ const EnergyConsumptionPerDevice = () => {
                             </Stack>
                             <Stack direction="column">
                                 <Typography level="title-sm">
-                                    Peak consumption
+                                    Peak consumption last 28 days
                                 </Typography>
                                 <Stack direction="column">
                                     <Typography variant="soft" color="danger">
-                                        {peakDevice.name} ({peakDevice.value} kWh) on{" "}
-                                        {peakDevice.date}
+                                        {peakDevice.name} ({peakDevice.value}{" "}
+                                        kWh) on {peakDevice.date}
                                     </Typography>
                                 </Stack>
                             </Stack>

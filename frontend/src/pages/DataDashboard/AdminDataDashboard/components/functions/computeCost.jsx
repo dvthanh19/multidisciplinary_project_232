@@ -80,7 +80,7 @@ const computeCost = async (kWh) => {
 
     const data = await response.json();
 
-    return data.Data.HDN_HDON[0].SO_TIEN;
+    return { raw: data, cost: data.Data.HDN_HDON[0].SO_TIEN };
 };
 
 export default computeCost;

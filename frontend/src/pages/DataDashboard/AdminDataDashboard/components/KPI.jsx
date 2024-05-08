@@ -15,6 +15,7 @@ import {
     Tooltip,
     Chip,
     Checkbox,
+    Divider,
 } from "@mui/joy";
 
 import {
@@ -38,6 +39,7 @@ import {
     FileDownload,
     Subject,
     DataObject,
+    AutoAwesome,
 } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 
@@ -55,12 +57,15 @@ const CostKPI = () => {
     const loadsFigures = async () => {
         const [thisWeekKWH, ignore, lastWeekConsump, lastOfLastWeekConsump] =
             await getConsumptionKPI();
-        const vnd = await computeCost(thisWeekKWH);
-        const dollar = vnd / 25000.0;
+
+        const cost = await computeCost(thisWeekKWH);
+        const dollar = cost.cost / 25000.0;
         setThisWeekCost(dollar);
 
-        const lastWeekVND = await computeCost(lastWeekConsump);
-        const lastOfLastWeekVND = await computeCost(lastOfLastWeekConsump);
+        const costLastWeek = await computeCost(lastWeekConsump);
+        const lastWeekVND = costLastWeek.cost;
+        const costLastOfLastWeek = await computeCost(lastOfLastWeekConsump);
+        const lastOfLastWeekVND = costLastOfLastWeek.cost;
         const deltaCost =
             1.0 -
             (lastWeekVND - lastOfLastWeekVND) /
@@ -73,52 +78,6 @@ const CostKPI = () => {
     }, []);
 
     const DetailModal = ({ open, setOpen }) => {
-        const dataDaily = {
-            labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            datasets: [
-                {
-                    label: "Daily cost",
-                    data: [65, 59, 80, 81, 56, 55, 40],
-                    backgroundColor: [
-                        "rgba(255, 99, 132, 0.2)",
-                        "rgba(255, 159, 64, 0.2)",
-                        "rgba(255, 205, 86, 0.2)",
-                        "rgba(75, 192, 192, 0.2)",
-                        "rgba(54, 162, 235, 0.2)",
-                        "rgba(153, 102, 255, 0.2)",
-                        "rgba(201, 203, 207, 0.2)",
-                    ],
-                    borderColor: [
-                        "rgb(255, 99, 132)",
-                        "rgb(255, 159, 64)",
-                        "rgb(255, 205, 86)",
-                        "rgb(75, 192, 192)",
-                        "rgb(54, 162, 235)",
-                        "rgb(153, 102, 255)",
-                        "rgb(201, 203, 207)",
-                    ],
-                    borderWidth: 1,
-                },
-            ],
-        };
-
-        const options = {
-            scales: {
-                y: {
-                    title: {
-                        display: true,
-                        text: "$ U.S. Dollars",
-                    },
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: "Weekdays",
-                    },
-                },
-            },
-        };
-
         return (
             <Modal open={open}>
                 <ModalDialog minWidth={500}>
@@ -158,21 +117,29 @@ const CostKPI = () => {
                                 </IconButton>
                             </Tooltip>
                         </Stack>
-                        <Bar data={dataDaily} options={options}></Bar>
-                        <Stack
-                            direction="row"
-                            justifyContent="center"
-                            alignItems="center"
-                        >
-                            <IconButton>
-                                <NavigateBefore />
-                            </IconButton>
-                            <Typography>
-                                June 29, 2023 - July 06, 2023
+                        <Stack direction="column" spacing={1}>
+                            <Typography></Typography>
+                            {/* <Typography>
+                                This week consumption{" "}
+                                <Typography color="danger" variant="soft">
+                                    {consumpData.thisWeek.toFixed(4)}
+                                </Typography>{" "}
+                                kWh
                             </Typography>
-                            <IconButton>
-                                <NavigateNext />
-                            </IconButton>
+                            <Typography>
+                                Last week consumption{" "}
+                                <Typography color="danger" variant="soft">
+                                    {consumpData.lastWeek.toFixed(4)}
+                                </Typography>{" "}
+                                kWh
+                            </Typography>
+                            <Typography>
+                                Highest consumption week{" "}
+                                <Typography color="danger" variant="soft">
+                                    {consumpData.lastWeek.toFixed(4)}
+                                </Typography>{" "}
+                                kWh
+                            </Typography> */}
                         </Stack>
                     </DialogContent>
                 </ModalDialog>
@@ -223,9 +190,21 @@ const EnergyConsumptionKPI = () => {
     const [thisWeekConsump, setThisWeekConsump] = useState(0.0);
     const [deltaLastWeekConsump, setDeltaLastWeekConsump] = useState(0.0);
 
+    const [consumpData, setConsumpData] = useState({
+        thisWeek: 0.0,
+        lastWeek: 0.0,
+        lastOfLastWeek: 0.0,
+    });
+
     const loadsFigures = async () => {
         const [thisWeekConsumption, deltaLastWeekConsumption, a, b] =
             await getConsumptionKPI();
+
+        setConsumpData({
+            thisWeek: thisWeekConsumption,
+            lastWeek: a,
+            lastOfLastWeek: b,
+        });
 
         setThisWeekConsump(thisWeekConsumption);
         setDeltaLastWeekConsump(deltaLastWeekConsumption);
@@ -236,52 +215,6 @@ const EnergyConsumptionKPI = () => {
     }, []);
 
     const DetailModal = ({ open, setOpen }) => {
-        const dataDaily = {
-            labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            datasets: [
-                {
-                    label: "Daily consumption",
-                    data: [65, 59, 80, 81, 56, 55, 40],
-                    backgroundColor: [
-                        "rgba(255, 99, 132, 0.2)",
-                        "rgba(255, 159, 64, 0.2)",
-                        "rgba(255, 205, 86, 0.2)",
-                        "rgba(75, 192, 192, 0.2)",
-                        "rgba(54, 162, 235, 0.2)",
-                        "rgba(153, 102, 255, 0.2)",
-                        "rgba(201, 203, 207, 0.2)",
-                    ],
-                    borderColor: [
-                        "rgb(255, 99, 132)",
-                        "rgb(255, 159, 64)",
-                        "rgb(255, 205, 86)",
-                        "rgb(75, 192, 192)",
-                        "rgb(54, 162, 235)",
-                        "rgb(153, 102, 255)",
-                        "rgb(201, 203, 207)",
-                    ],
-                    borderWidth: 1,
-                },
-            ],
-        };
-
-        const options = {
-            scales: {
-                y: {
-                    title: {
-                        display: true,
-                        text: "kWh",
-                    },
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: "Weekdays",
-                    },
-                },
-            },
-        };
-
         return (
             <Modal open={open}>
                 <ModalDialog minWidth={500}>
@@ -315,21 +248,51 @@ const EnergyConsumptionKPI = () => {
                                 </IconButton>
                             </Tooltip>
                         </Stack>
-                        <Bar data={dataDaily} options={options}></Bar>
-                        <Stack
-                            direction="row"
-                            justifyContent="center"
-                            alignItems="center"
-                        >
-                            <IconButton>
-                                <NavigateBefore />
-                            </IconButton>
+
+                        <Stack direction="column" spacing={1}>
                             <Typography>
-                                June 29, 2023 - July 06, 2023
+                                This week consumption{" "}
+                                <Typography color="danger" variant="soft">
+                                    {consumpData.thisWeek.toFixed(4)}
+                                </Typography>{" "}
+                                kWh
                             </Typography>
-                            <IconButton>
-                                <NavigateNext />
-                            </IconButton>
+                            <Typography>
+                                Last week consumption{" "}
+                                <Typography color="danger" variant="soft">
+                                    {consumpData.lastWeek.toFixed(4)}
+                                </Typography>{" "}
+                                kWh
+                            </Typography>
+                            <Stack direction="column" spacing={0}>
+                                <Typography>
+                                    Highest consumption week{" "}
+                                    <Typography color="danger" variant="soft">
+                                        {consumpData.lastWeek.toFixed(4)}
+                                    </Typography>{" "}
+                                    kWh
+                                </Typography>
+                                <Typography>
+                                    at{" "}
+                                    <Typography variant="soft">
+                                        ISO WEEK 18 (29/04/2024 - 5/5/2024)
+                                    </Typography>{" "}
+                                </Typography>
+                            </Stack>
+                            <Divider />
+                            <Typography
+                                level="title-sm"
+                                startDecorator={<AutoAwesome />}
+                            >
+                                Suggestion:{" "}
+                                <Typography
+                                    variant="soft"
+                                    color="success"
+                                    level="body-sm"
+                                >
+                                    You are doing well!
+                                </Typography>
+                            </Typography>
                         </Stack>
                     </DialogContent>
                 </ModalDialog>

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const ADAFRUIT_IO_USERNAME = "1zy";
-const ADAFRUIT_IO_KEY = "aio_HQHl865UcZU9BnFNjemUKCfwh7Vx";
+const ADAFRUIT_IO_KEY = "aio_Csiu15Rnws3r2rPqdCtv54ZwYUrW";
 
 function getWeekNumber(d) {
     // Copy from https://stackoverflow.com/questions/6117814/get-week-of-year-in-javascript-like-in-php
