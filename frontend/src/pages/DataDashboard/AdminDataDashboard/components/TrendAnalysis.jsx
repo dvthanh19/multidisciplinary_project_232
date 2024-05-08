@@ -16,60 +16,104 @@ import {
     DataObject,
 } from "@mui/icons-material";
 import { Line, Bar, Pie, Radar, Doughnut } from "react-chartjs-2";
+import axios from "axios";
 import "chart.js/auto";
+import { useEffect, useState } from "react";
 
 const EnergyConsumptionPerDevice = () => {
-    const dataDaily = {
-        labels: ["23/04/2024", "24/04/2024", "25/04/2024", "26/04/2024", "27/04/2024", "28/04/2024", "29/04/2024"],
-        datasets: [
-            {
-                label: "Quạt",
-                data: [65, 59, 80, 81, 56, 55, 40],
-                backgroundColor: [
-                    "rgba(255, 99, 132, 0.2)",
-                    "rgba(255, 159, 64, 0.2)",
-                    "rgba(255, 205, 86, 0.2)",
-                    "rgba(75, 192, 192, 0.2)",
-                    "rgba(54, 162, 235, 0.2)",
-                    "rgba(153, 102, 255, 0.2)",
-                    "rgba(201, 203, 207, 0.2)",
-                ],
-                borderColor: [
-                    "rgb(255, 99, 132)",
-                    "rgb(255, 159, 64)",
-                    "rgb(255, 205, 86)",
-                    "rgb(75, 192, 192)",
-                    "rgb(54, 162, 235)",
-                    "rgb(153, 102, 255)",
-                    "rgb(201, 203, 207)",
-                ],
-                borderWidth: 1,
-            },
-            {
-                label: "Đèn",
-                data: [27, 49, 15, 23, 47, 66, 44],
-                backgroundColor: [
-                    "rgba(255, 99, 132, 0.2)",
-                    "rgba(255, 159, 64, 0.2)",
-                    "rgba(255, 205, 86, 0.2)",
-                    "rgba(75, 192, 192, 0.2)",
-                    "rgba(54, 162, 235, 0.2)",
-                    "rgba(153, 102, 255, 0.2)",
-                    "rgba(201, 203, 207, 0.2)",
-                ],
-                borderColor: [
-                    "rgb(255, 99, 132)",
-                    "rgb(255, 159, 64)",
-                    "rgb(255, 205, 86)",
-                    "rgb(75, 192, 192)",
-                    "rgb(54, 162, 235)",
-                    "rgb(153, 102, 255)",
-                    "rgb(201, 203, 207)",
-                ],
-                borderWidth: 1,
-            },
-        ],
+    const [fromDate, setFromDate] = useState("2024-01-01");
+    const [toDate, setToDate] = useState("2025-01-01");
+    const [graphData, setGraphData] = useState({ datasets: [] });
+
+    const [increasedDevices, setIncreasedDevices] = useState([]);
+    const [decreasedDevice, setDecreasedDevice] = useState([]);
+    const [peakDevice, setPeakDevice] = useState({});
+
+    const loadsFigures = async () => {
+
+        const response = await axios.get("http://localhost:3000/api/device/");
+        // Just keep fan and led2
+        const devices = response.data.device.filter(
+            (x) => x.deviceID == "fan" || x.deviceID == "led2"
+        );
+
+        const datas = await Promise.all(
+            devices.map(async (device) => {
+                const response = await fetch(
+                    `https://io.adafruit.com/api/v2/${ADAFRUIT_IO_USERNAME}/feeds/${device.deviceID}/data/chart?start_time=${fromDate}&end_time=${toDate}&resolution=60&field=avg`,
+                    {
+                        headers: {
+                            "X-AIO-Key": ADAFRUIT_IO_KEY,
+                        },
+                    }
+                );
+
+                console.log(response);
+
+                const json_response = await response.json();
+
+                let data = {
+                    label: device.name,
+                    data: [],
+                    borderWidth: 5,
+                };
+
+                const dates_values = json_response.data.map(
+                    (date_value_pair) => {
+                        const date = new Date(date_value_pair[0]);
+                        const value = date_value_pair[1];
+
+                        data.data.push({
+                            x: date.toLocaleDateString(),
+                            y: (value * device.c_num) / 1000,
+                        });
+
+                        return { date: date, value: value };
+                    }
+                );
+
+                const maxValue = Math.max(...dates_values.map((a) => a.value));
+                const maxDate = dates_values.find(
+                    (e) => e.value == maxValue
+                ).date;
+
+                // LAM TOI DAY SAO MA ADAFRUIT BI DUNG HINH LUON ROI
+
+                return data;
+            })
+        );
+
+        setGraphData({
+            datasets: datas,
+        });
+
+        setPeakDevice({
+            name: "Quạt",
+            date: new Date("5/5/2024").toLocaleDateString(),
+            value: 5.25,
+        });
+
+        console.log(datas);
+
+        const increases = datas.map((data) => {
+            const values = data.data.map((x) => x.y);
+            const delta =
+                1.0 -
+                (Math.max(...values) - Math.min(...values)) /
+                    (Math.max(...values) + Math.min(...values));
+
+            return { name: data.label, delta: delta };
+        });
+
+        console.log(increases);
+
+        setIncreasedDevices(increases);
+        setDecreasedDevice([]);
     };
+
+    useEffect(() => {
+        loadsFigures();
+    }, [fromDate, toDate]);
 
     return (
         <Card>
@@ -79,7 +123,7 @@ const EnergyConsumptionPerDevice = () => {
                 </Typography>
                 <Stack direction="row" spacing={2}>
                     <Grid xs={8}>
-                        <Line data={dataDaily} />
+                        <Line data={graphData} />
                         <Stack direction="row" justifyContent="space-between">
                             <Stack direction="row">
                                 <Tooltip title="Export as CSV">
@@ -98,9 +142,19 @@ const EnergyConsumptionPerDevice = () => {
                                 alignItems="center"
                                 spacing={1}
                             >
-                                <Input type="date" />
+                                <Input
+                                    type="date"
+                                    onChange={(e) => {
+                                        setFromDate(e.target.value);
+                                    }}
+                                />
                                 <Typography> to </Typography>
-                                <Input type="date" />
+                                <Input
+                                    type="date"
+                                    onChange={(e) => {
+                                        setToDate(e.target.value);
+                                    }}
+                                />
                             </Stack>
                         </Stack>
                     </Grid>
@@ -109,31 +163,70 @@ const EnergyConsumptionPerDevice = () => {
                             <Typography level="title-lg">Analytics</Typography>
                             <Stack direction="column">
                                 <Typography level="title-sm">
-                                    Most increased last 7 days
+                                    Increased consumption last 28 days
                                 </Typography>
-                                <Typography variant="soft" color="danger">
-                                    {"Quạt"} ({"+8.2%"})
-                                </Typography>
+                                <Stack direction="column" spacing={1}>
+                                    {increasedDevices.length > 0 ? (
+                                        increasedDevices.map(
+                                            (increase, idx) => (
+                                                <Typography
+                                                    variant="soft"
+                                                    color="danger"
+                                                >
+                                                    {increase.name} (+
+                                                    {(
+                                                        increase.delta * 100
+                                                    ).toFixed(2)}
+                                                    %)
+                                                </Typography>
+                                            )
+                                        )
+                                    ) : (
+                                        <Typography
+                                            variant="soft"
+                                            color="danger"
+                                        >
+                                            None
+                                        </Typography>
+                                    )}
+                                </Stack>
                             </Stack>
                             <Stack direction="column">
                                 <Typography level="title-sm">
-                                    Most decreased last 7 days
+                                    Decreased consumption last 28 days
                                 </Typography>
-                                <Typography variant="soft" color="success">
-                                    {"Đèn"} ({"-1.2%"})
-                                </Typography>
+                                <Stack direction="column" spacing={1}>
+                                    {decreasedDevice.length > 0 ? (
+                                        decreasedDevice.map((decrease, idx) => (
+                                            <Typography
+                                                variant="soft"
+                                                color="danger"
+                                            >
+                                                {decrease.name} (+
+                                                {(decrease.delta * 100).toFixed(
+                                                    2
+                                                )}
+                                                %)
+                                            </Typography>
+                                        ))
+                                    ) : (
+                                        <Typography
+                                            variant="soft"
+                                            color="success"
+                                        >
+                                            None
+                                        </Typography>
+                                    )}
+                                </Stack>
                             </Stack>
                             <Stack direction="column">
                                 <Typography level="title-sm">
-                                    Peak consumption
+                                    Peak consumption last 28 days
                                 </Typography>
                                 <Stack direction="column">
                                     <Typography variant="soft" color="danger">
-                                        {"Đèn"} ({"90 kWh"}) on{" "}
-                                        {"Sat, March 23, 2024"}
-                                    </Typography>
-                                    <Typography variant="soft" color="danger">
-                                        {"(4 days ago)"}
+                                        {peakDevice.name} ({peakDevice.value}{" "}
+                                        kWh) on {peakDevice.date}
                                     </Typography>
                                 </Stack>
                             </Stack>

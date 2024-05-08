@@ -43,8 +43,8 @@ const DeviceSurface = ({ id, deviceID, name, type, position }) => {
     const [filterToDateValue, setFilterToDateValue] = useState("");
     const [validDateRange, setValidDateRange] = useState(true);
     const [fetchLimit, setFetchLimit] = useState(10);
-    const ADAFRUIT_IO_USERNAME = "1zy";
-    const ADAFRUIT_IO_KEY = "aio_Csiu15Rnws3r2rPqdCtv54ZwYUrW";
+    const ADAFRUIT_IO_USERNAME = "";
+    const ADAFRUIT_IO_KEY = "";
 
     useEffect(() => {
         const fetchLogData = async () => {
