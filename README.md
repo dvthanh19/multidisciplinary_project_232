@@ -2,11 +2,15 @@
 
 IoT Smart Classroom is an application that helps students and teachers to control IoT devices of a classroom. The product fosters engaged learning experience and organized management with built-in IoT Dashboard, Data Dashboard and Admin Dashboard.
 
-Built with ExpressJS, ReactJS and m
+Built with ExpressJS, MongoDB, ReactJS and JoyUI
 
 #### Images
 
-
+![](https://github.com/dvthanh19/multidisciplinary_project_232/blob/newer-brach/docs/01.png)
+![](https://github.com/dvthanh19/multidisciplinary_project_232/blob/newer-brach/docs/02.png)
+![](https://github.com/dvthanh19/multidisciplinary_project_232/blob/newer-brach/docs/03.png)
+![](https://github.com/dvthanh19/multidisciplinary_project_232/blob/newer-brach/docs/05.png)
+![](https://github.com/dvthanh19/multidisciplinary_project_232/blob/newer-brach/docs/06.png)
 
 #### Excited? Get started
 
