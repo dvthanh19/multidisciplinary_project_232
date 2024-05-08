@@ -30,8 +30,6 @@ const EnergyConsumptionPerDevice = () => {
     const [peakDevice, setPeakDevice] = useState({});
 
     const loadsFigures = async () => {
-        const ADAFRUIT_IO_USERNAME = "1zy";
-        const ADAFRUIT_IO_KEY = "aio_Csiu15Rnws3r2rPqdCtv54ZwYUrW";
 
         const response = await axios.get("http://localhost:3000/api/device/");
         // Just keep fan and led2
